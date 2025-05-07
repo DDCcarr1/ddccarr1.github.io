@@ -43,6 +43,7 @@
         <option value="wyr">Would You Rather</option>
         <option value="nhie">Never Have I Ever</option>
         <option value="paranoia">Who's Most Likely To</option>
+        <option value="random">Random</option>
     </select>
 
     <label for="ratingSelect">Rating</label>
@@ -51,6 +52,7 @@
         <option value="?rating=pg">PG</option>
         <option value="?rating=pg13">PG-13</option>
         <option value="?rating=r">R</option>
+        <option value="random">Random</option>
     </select>
     
     <button id="fetchButton">Play!</button>
@@ -58,13 +60,33 @@
 
     <script>
         document.getElementById('fetchButton').addEventListener('click', () => {
-            const selectedOption = document.getElementById('optionSelect').value;
-            const selectedRating = document.getElementById('ratingSelect').value;
+            const optionSelect = document.getElementById('optionSelect');
+            const ratingSelect = document.getElementById('ratingSelect');
+            const selectedOption = optionSelect.value;
+            const selectedRating = ratingSelect.value;
             const outputDiv = document.getElementById('output');
             outputDiv.textContent = 'Loading...';
 
+            // Handle "Random" option for category
+            let finalOption = selectedOption;
+            if (selectedOption === 'random') {
+                const options = Array.from(optionSelect.options)
+                    .filter(option => option.value !== 'random')
+                    .map(option => option.value);
+                finalOption = options[Math.floor(Math.random() * options.length)];
+            }
+
+            // Handle "Random" option for rating
+            let finalRating = selectedRating;
+            if (selectedRating === 'random') {
+                const ratings = Array.from(ratingSelect.options)
+                    .filter(option => option.value !== 'random' && option.value !== '')
+                    .map(option => option.value);
+                finalRating = ratings[Math.floor(Math.random() * ratings.length)];
+            }
+
             // Construct the API URL based on the selected option and rating
-            const apiUrl = `https://api.truthordarebot.xyz/api/${selectedOption}${selectedRating}`;
+            const apiUrl = `https://api.truthordarebot.xyz/api/${finalOption}${finalRating}`;
 
             fetch(apiUrl)
                 .then(response => {
