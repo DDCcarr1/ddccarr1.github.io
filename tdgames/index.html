@@ -6,7 +6,7 @@
     <title>TD Games</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: Veranda;
             text-align: center;
             margin: 20px;
         }
@@ -41,7 +41,7 @@
 </head>
 <body>
     <h1>TD Games - Fun Questions with Friends</h1>
-    <p>TD Games is an interactive game where you choose a catagory and rating, then click Get to get a question!</p>
+    <p>TD Games is an interactive game where you choose a catagory and rating, then click to get a question!</p>
     
     <label for="optionSelect">Category</label>
     <select id="optionSelect">
@@ -62,7 +62,7 @@
         <option value="random">Random</option>
     </select>
     
-    <button id="fetchButton">Get</button>
+    <button id="fetchButton">    Get Question!    </button>
     <div id="output"></div>
     
     <footer id="footer">Due to API Issues, the Rating must be <a href="/tdgames/?secure">PG</a>.</footer>
@@ -72,7 +72,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             const footer = document.getElementById('footer');
             if (location.protocol === 'https:') {
-                footer.style.display = 'none';
+                footer.style.display = 'inline';
             }
         });
 
@@ -91,7 +91,7 @@
                 const options = Array.from(optionSelect.options)
                     .filter(option => option.value !== 'random')
                     .map(option => option.value);
-                finalOption = options[Math.floor(Math.random() * options.length)];
+                finalOption = options[Math.floor(Math.random() * (options.length - 1))];
             }
 
             // Handle "Random" option for rating
@@ -100,7 +100,7 @@
                 const ratings = Array.from(ratingSelect.options)
                     .filter(option => option.value !== 'random' && option.value !== '')
                     .map(option => option.value);
-                finalRating = ratings[Math.floor(Math.random() * ratings.length)];
+                finalRating = ratings[Math.floor(Math.random() * (ratings.length - 1))];
             }
 
             // Construct the API URL based on the selected option and rating
@@ -119,10 +119,10 @@
                     const ratingLabel = ratingSelect.options[ratingSelect.selectedIndex].text;
 
                     // Display the category, rating, and question in the output
-                    outputDiv.textContent = `${categoryLabel} (${ratingLabel}): ${data.question || 'No prompt found!'}`;
+                    outputDiv.textContent = `${data.type || 'ERROR'} (${data.rating || 'ERROR'}): ${data.question}`;
                 })
                 .catch(error => {
-                    outputDiv.textContent = `Error fetching prompt: ${error.message}`;
+                    outputDiv.textContent = `An Issue Occured, Try Again`;
                 });
         });
     </script>
