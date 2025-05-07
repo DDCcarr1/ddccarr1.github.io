@@ -117,10 +117,10 @@
                         : 'PG';
                 
                     // Display the category, rating, and question in the output
-                    outputDiv.textContent = `${categoryLabel} (${ratingLabel}): ${data.question || 'No prompt found!'}`;
+                    outputDiv.textContent = `${data.type || 'Error'} (${data.type || 'Error'}): ${data.question || 'Error Occured- Try Again'}`;
                 })
                 .catch(error => {
-                    outputDiv.textContent = `Error fetching prompt: ${error.message}`;
+                    outputDiv.textContent = `Error Occured- Try Again`;
                 });
         });
     </script>
