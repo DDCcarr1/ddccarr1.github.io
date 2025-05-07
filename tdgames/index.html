@@ -10,6 +10,11 @@
             text-align: center;
             margin: 20px;
         }
+        below {
+            font-family: Verdana;
+            text-align: center;
+            margin: 20px;
+        }
         select, button {
             padding: 10px;
             font-size: 1em;
@@ -86,7 +91,7 @@
             const optionSelect = document.getElementById('optionSelect');
             const selectedOption = optionSelect.value;
             const outputDiv = document.getElementById('output');
-            outputDiv.textContent = 'Loading...';
+            outputDiv.textContent = 'Loading Question...';
 
             // Handle "Random" option for category
             let finalOption = selectedOption;
@@ -131,6 +136,6 @@
                 });
         });
     </script>
-    <p style="display: inline;">Due to restrictions with the API, questions must be <a href="/tdgames?secure=true">PG</a>.</p>
+    <below style="display: inline;">Due to restrictions with the API, questions must be <a href="/tdgames?secure=true">PG</a>.</below>
 </body>
 </html>
