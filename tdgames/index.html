@@ -74,11 +74,12 @@
         // Handle visibility of the rating selector based on the "secure=true" parameter
         const ratingSelect = document.getElementById('ratingSelect');
         const ratingLabel = document.getElementById('ratingLabel');
-        const secureMode = hasUrlParameter('secure');
+        const secureMode = hasUrlParameter('secure=true');
 
         if (secureMode) {
             ratingSelect.style.display = 'inline';
             ratingLabel.style.display = 'inline';
+            below.style.display = 'none';
         }
 
         document.getElementById('fetchButton').addEventListener('click', () => {
@@ -130,6 +131,6 @@
                 });
         });
     </script>
-    <p>Due to restrictions with the API, questions must be <a href="/tdgames?secure=true">PG</a>.</p>
+    <p style="display: inline;">Due to restrictions with the API, questions must be <a href="/tdgames?secure=true">PG</a>.</p>
 </body>
 </html>
