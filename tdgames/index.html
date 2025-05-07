@@ -6,7 +6,7 @@
     <title>TD Games</title>
     <style>
         body {
-            font-family: Verdana;
+            font-family: Arial, sans-serif;
             text-align: center;
             margin: 20px;
         }
@@ -23,24 +23,27 @@
             border-radius: 5px;
         }
         button:hover {
-            background-color: #006600;
+            background-color: #0056b3;
         }
         #output {
             margin-top: 20px;
             font-size: 1.5em;
             color: #333;
         }
-        a {
-            color: #000000;
-            text-decoration: none;
+        footer {
+            margin-top: 50px;
+            font-size: 0.9em;
+            color: #666;
         }
+        a {
+            text-decoration: none;
     </style>
 </head>
 <body>
     <h1>TD Games - Fun Questions with Friends</h1>
-    <p>Choose a Catagory and a Rating, then click Play!</p>
+    <p>TD Games is an interactive game where you choose a catagory and rating, then click Get to get a question!</p>
     
-    <label for="optionSelect">Catagory</label>
+    <label for="optionSelect">Category</label>
     <select id="optionSelect">
         <option value="truth">Truth</option>
         <option value="dare">Dare</option>
@@ -50,40 +53,35 @@
         <option value="random">Random</option>
     </select>
 
-    <label for="ratingSelect" id="ratingLabel" style="display: none;">Rating</label>
-    <select id="ratingSelect" style="display: none;">
+    <label for="ratingSelect">Rating</label>
+    <select id="ratingSelect">
         <option value="">Default (PG/PG13)</option>
         <option value="?rating=pg">PG</option>
         <option value="?rating=pg13">PG-13</option>
         <option value="?rating=r">R</option>
         <option value="random">Random</option>
     </select>
-    <p>
-        
-    </p>
-    <button id="fetchButton">Play!</button>
+    
+    <button id="fetchButton">Get</button>
     <div id="output"></div>
+    
+    <footer id="footer">Due to API Issues, the Rating must be <a href="/tdgames/?secure">PG</a>.</footer>
 
     <script>
-        // Function to check if a URL parameter exists
-        function hasUrlParameter(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.has(param);
-        }
+        // Hide footer if the protocol is secure (HTTPS)
+        document.addEventListener("DOMContentLoaded", () => {
+            const footer = document.getElementById('footer');
+            if (location.protocol === 'https:') {
+                footer.style.display = 'none';
+            }
+        });
 
-        // Handle visibility of the rating selector based on the "secure=true" parameter
-        const ratingSelect = document.getElementById('ratingSelect');
-        const ratingLabel = document.getElementById('ratingLabel');
-        const secureMode = hasUrlParameter('secure');
-
-        if (secureMode) {
-            ratingSelect.style.display = 'inline';
-            ratingLabel.style.display = 'inline';
-        }
-
+        // Fetch and display the game question
         document.getElementById('fetchButton').addEventListener('click', () => {
             const optionSelect = document.getElementById('optionSelect');
+            const ratingSelect = document.getElementById('ratingSelect');
             const selectedOption = optionSelect.value;
+            const selectedRating = ratingSelect.value;
             const outputDiv = document.getElementById('output');
             outputDiv.textContent = 'Loading...';
 
@@ -96,9 +94,9 @@
                 finalOption = options[Math.floor(Math.random() * options.length)];
             }
 
-            // Handle rating based on secure mode
-            let finalRating = secureMode ? ratingSelect.value : '?rating=pg';
-            if (secureMode && finalRating === 'random') {
+            // Handle "Random" option for rating
+            let finalRating = selectedRating;
+            if (selectedRating === 'random') {
                 const ratings = Array.from(ratingSelect.options)
                     .filter(option => option.value !== 'random' && option.value !== '')
                     .map(option => option.value);
@@ -118,18 +116,15 @@
                 .then(data => {
                     // Extract the selected category and rating labels
                     const categoryLabel = optionSelect.options[optionSelect.selectedIndex].text;
-                    const ratingLabel = secureMode 
-                        ? ratingSelect.options[ratingSelect.selectedIndex].text 
-                        : 'PG';
-                
+                    const ratingLabel = ratingSelect.options[ratingSelect.selectedIndex].text;
+
                     // Display the category, rating, and question in the output
-                    outputDiv.textContent = `${data.type || 'Error'} (${data.rating || 'Error'}): ${data.question || 'Error Occured- Try Again'}`;
+                    outputDiv.textContent = `${categoryLabel} (${ratingLabel}): ${data.question || 'No prompt found!'}`;
                 })
                 .catch(error => {
-                    outputDiv.textContent = `Error Occured- Try Again`;
+                    outputDiv.textContent = `Error fetching prompt: ${error.message}`;
                 });
         });
     </script>
-    <p>Due to restrictions with the API, questions must be <a href="/tdgames?secure=true">PG</a>.</p>
 </body>
 </html>
