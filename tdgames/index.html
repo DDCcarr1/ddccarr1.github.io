@@ -117,7 +117,7 @@
                         : 'PG';
                 
                     // Display the category, rating, and question in the output
-                    outputDiv.textContent = `${data.type || 'Error'} (${data.type || 'Error'}): ${data.question || 'Error Occured- Try Again'}`;
+                    outputDiv.textContent = `${data.type || 'Error'} (${data.rating || 'Error'}): ${data.question || 'Error Occured- Try Again'}`;
                 })
                 .catch(error => {
                     outputDiv.textContent = `Error Occured- Try Again`;
