@@ -6,9 +6,12 @@
     <title>TD Games</title>
     <style>
         body {
-            font-family: Veranda;
+            font-family: Arial, sans-serif;
             text-align: center;
             margin: 20px;
+        }
+        a {
+            text-decoration: none;
         }
         select, button {
             padding: 10px;
@@ -35,13 +38,14 @@
             font-size: 0.9em;
             color: #666;
         }
-        a {
-            text-decoration: none;
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <h1>TD Games - Fun Questions with Friends</h1>
-    <p>TD Games is an interactive game where you choose a catagory and rating, then click to get a question!</p>
+    <p>Choose a Category and a Rating, then click Play!</p>
     
     <label for="optionSelect">Category</label>
     <select id="optionSelect">
@@ -53,8 +57,8 @@
         <option value="random">Random</option>
     </select>
 
-    <label for="ratingSelect">Rating</label>
-    <select id="ratingSelect">
+    <label for="ratingSelect" class="hidden">Rating</label>
+    <select id="ratingSelect" class="hidden">
         <option value="">Default (PG/PG13)</option>
         <option value="?rating=pg">PG</option>
         <option value="?rating=pg13">PG-13</option>
@@ -62,17 +66,36 @@
         <option value="random">Random</option>
     </select>
     
-    <button id="fetchButton">    Get Question!    </button>
+    <button id="fetchButton">Play!</button>
     <div id="output"></div>
     
-    <footer id="footer">Due to API Issues, the Rating must be <a href="/tdgames/?secure">PG</a>.</footer>
+    <footer id="footer">TD Games © 2025. All rights reserved.</footer>
 
     <script>
-        // Hide footer if the protocol is secure (HTTPS)
+        // Function to get URL parameters
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.has(name);
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const footer = document.getElementById('footer');
-            if (location.protocol === 'https:') {
-                footer.style.display = 'inline';
+            const ratingLabel = document.querySelector('label[for="ratingSelect"]');
+            const ratingSelect = document.getElementById('ratingSelect');
+
+            // Check if the URL contains ?secure
+            const isSecure = getUrlParameter('secure');
+
+            if (isSecure) {
+                // Hide the footer and show the rating selector
+                footer.classList.add('hidden');
+                ratingLabel.classList.remove('hidden');
+                ratingSelect.classList.remove('hidden');
+            } else {
+                // Show the footer and hide the rating selector
+                footer.classList.remove('hidden');
+                ratingLabel.classList.add('hidden');
+                ratingSelect.classList.add('hidden');
             }
         });
 
@@ -91,7 +114,7 @@
                 const options = Array.from(optionSelect.options)
                     .filter(option => option.value !== 'random')
                     .map(option => option.value);
-                finalOption = options[Math.floor(Math.random() * (options.length - 1))];
+                finalOption = options[Math.floor(Math.random() * options.length)];
             }
 
             // Handle "Random" option for rating
@@ -100,7 +123,7 @@
                 const ratings = Array.from(ratingSelect.options)
                     .filter(option => option.value !== 'random' && option.value !== '')
                     .map(option => option.value);
-                finalRating = ratings[Math.floor(Math.random() * (ratings.length - 1))];
+                finalRating = ratings[Math.floor(Math.random() * ratings.length)];
             }
 
             // Construct the API URL based on the selected option and rating
@@ -116,13 +139,13 @@
                 .then(data => {
                     // Extract the selected category and rating labels
                     const categoryLabel = optionSelect.options[optionSelect.selectedIndex].text;
-                    const ratingLabel = ratingSelect.options[ratingSelect.selectedIndex].text;
+                    const ratingLabel = ratingSelect.options[ratingSelect.selectedIndex]?.text || 'Default';
 
                     // Display the category, rating, and question in the output
-                    outputDiv.textContent = `${data.type || 'ERROR'} (${data.rating || 'ERROR'}): ${data.question}`;
+                    outputDiv.textContent = `${data.type} (${data.rating}): ${data.question || 'No prompt found!'}`;
                 })
                 .catch(error => {
-                    outputDiv.textContent = `An Issue Occured, Try Again`;
+                    outputDiv.textContent = `Error Occured, Try Again`;
                 });
         });
     </script>
