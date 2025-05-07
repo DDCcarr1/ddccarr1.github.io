@@ -10,11 +10,6 @@
             text-align: center;
             margin: 20px;
         }
-        below {
-            font-family: Verdana;
-            text-align: center;
-            margin: 20px;
-        }
         select, button {
             padding: 10px;
             font-size: 1em;
@@ -28,16 +23,12 @@
             border-radius: 5px;
         }
         button:hover {
-            background-color: #006600;
+            background-color: #0056b3;
         }
         #output {
             margin-top: 20px;
             font-size: 1.5em;
             color: #333;
-        }
-        a {
-            color: #000000;
-            text-decoration: none;
         }
     </style>
 </head>
@@ -63,9 +54,7 @@
         <option value="?rating=r">R</option>
         <option value="random">Random</option>
     </select>
-    <p>
-        
-    </p>
+    
     <button id="fetchButton">Play!</button>
     <div id="output"></div>
 
@@ -84,14 +73,13 @@
         if (secureMode) {
             ratingSelect.style.display = 'inline';
             ratingLabel.style.display = 'inline';
-            below.style.display = 'none';
         }
 
         document.getElementById('fetchButton').addEventListener('click', () => {
             const optionSelect = document.getElementById('optionSelect');
             const selectedOption = optionSelect.value;
             const outputDiv = document.getElementById('output');
-            outputDiv.textContent = 'Loading Question...';
+            outputDiv.textContent = 'Loading...';
 
             // Handle "Random" option for category
             let finalOption = selectedOption;
@@ -136,6 +124,5 @@
                 });
         });
     </script>
-    <below style="display: inline;">Due to restrictions with the API, questions must be <a href="/tdgames?secure=true">PG</a>.</below>
 </body>
 </html>
