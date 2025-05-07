@@ -96,7 +96,12 @@
                     return response.json();
                 })
                 .then(data => {
-                    outputDiv.textContent = data.question || 'No prompt found!';
+                    // Extract the selected category and rating labels
+                    const categoryLabel = optionSelect.options[optionSelect.selectedIndex].text;
+                    const ratingLabel = ratingSelect.options[ratingSelect.selectedIndex].text;
+                
+                    // Display the category, rating, and question in the output
+                    outputDiv.textContent = `${categoryLabel} (${ratingLabel}): ${data.question || 'No prompt found!'}`;
                 })
                 .catch(error => {
                     outputDiv.textContent = `Error fetching prompt: ${error.message}`;
