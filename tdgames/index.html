@@ -47,8 +47,8 @@
         <option value="random">Random</option>
     </select>
 
-    <label for="ratingSelect">Rating</label>
-    <select id="ratingSelect">
+    <label for="ratingSelect" id="ratingLabel" style="display: none;">Rating</label>
+    <select id="ratingSelect" style="display: none;">
         <option value="">Default (PG/PG13)</option>
         <option value="?rating=pg">PG</option>
         <option value="?rating=pg13">PG-13</option>
@@ -60,11 +60,25 @@
     <div id="output"></div>
 
     <script>
+        // Function to check if a URL parameter exists
+        function hasUrlParameter(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.has(param);
+        }
+
+        // Handle visibility of the rating selector based on the "secure=true" parameter
+        const ratingSelect = document.getElementById('ratingSelect');
+        const ratingLabel = document.getElementById('ratingLabel');
+        const secureMode = hasUrlParameter('secure');
+
+        if (secureMode) {
+            ratingSelect.style.display = 'inline';
+            ratingLabel.style.display = 'inline';
+        }
+
         document.getElementById('fetchButton').addEventListener('click', () => {
             const optionSelect = document.getElementById('optionSelect');
-            const ratingSelect = document.getElementById('ratingSelect');
             const selectedOption = optionSelect.value;
-            const selectedRating = ratingSelect.value;
             const outputDiv = document.getElementById('output');
             outputDiv.textContent = 'Loading...';
 
@@ -77,9 +91,9 @@
                 finalOption = options[Math.floor(Math.random() * options.length)];
             }
 
-            // Handle "Random" option for rating
-            let finalRating = selectedRating;
-            if (selectedRating === 'random') {
+            // Handle rating based on secure mode
+            let finalRating = secureMode ? ratingSelect.value : '?rating=pg';
+            if (secureMode && finalRating === 'random') {
                 const ratings = Array.from(ratingSelect.options)
                     .filter(option => option.value !== 'random' && option.value !== '')
                     .map(option => option.value);
@@ -99,7 +113,9 @@
                 .then(data => {
                     // Extract the selected category and rating labels
                     const categoryLabel = optionSelect.options[optionSelect.selectedIndex].text;
-                    const ratingLabel = ratingSelect.options[ratingSelect.selectedIndex].text;
+                    const ratingLabel = secureMode 
+                        ? ratingSelect.options[ratingSelect.selectedIndex].text 
+                        : 'PG';
                 
                     // Display the category, rating, and question in the output
                     outputDiv.textContent = `${categoryLabel} (${ratingLabel}): ${data.question || 'No prompt found!'}`;
