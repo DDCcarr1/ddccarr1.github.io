@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lottery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            padding: 20px;
+        }
+        textarea {
+            width: 80%;
+            height: 150px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lottery Picker</h1>
+        <p>Enter names below (one name per line):</p>
+        <textarea id="nameList" placeholder="Enter names here..."></textarea><br>
+        <button onclick="pickWinner()">Pick a Winner!</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        function pickWinner() {
+            // Get the names from the textarea
+            const names = document.getElementById('nameList').value.trim().split('\n');
+
+            // Filter out any empty entries
+            const validNames = names.filter(name => name.trim() !== '');
+
+            if (validNames.length === 0) {
+                alert('Please enter at least one name.');
+                return;
+            }
+
+            // Pick a random name
+            const winner = validNames[Math.floor(Math.random() * validNames.length)];
+
+            // Display the winner
+            document.getElementById('result').textContent = `The winner is: ${winner}`;
+        }
+    </script>
+</body>
+</html>
