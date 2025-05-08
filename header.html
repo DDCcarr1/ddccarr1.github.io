@@ -116,8 +116,13 @@
         <ul>
             <li><a href="tdgames">TD Games</a></li>
             <li><a href="lottery">Lottery</a></li>
-            <li><a href="https://github.com/DDCcarr1/ddccarr1.github.io">GitHub</a></li>
+            <li><a id="github-link" href="#" target="_blank">GitHub</a></li>
         </ul>
     </nav>
+    <script>
+        // Set the GitHub link to the current page's URL
+        const githubLink = document.getElementById('github-link');
+        githubLink.href = window.location.href;
+    </script>
 </body>
 </html>
