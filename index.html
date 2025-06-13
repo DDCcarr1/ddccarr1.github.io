@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDCcarr1 — Homepage</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background: linear-gradient(135deg, #000066 0%, #0066cc 100%);
+            color: #fff;
+        }
+        .navbar {
+            width: 100%;
+            background: #000066;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.7rem 2rem;
+            box-sizing: border-box;
+        }
+        .navbar .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #fff;
+            text-decoration: none;
+        }
+        .navbar nav {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .navbar nav a {
+            color: #fff;
+            background: #0066cc;
+            text-decoration: none;
+            padding: 0.5em 1.2em;
+            border-radius: 24px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .navbar nav a:hover {
+            background: #004c99;
+        }
+        main {
+            max-width: 900px;
+            margin: 2rem auto 0 auto;
+            padding: 0 1.5rem;
+        }
+        .projects-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .project-card {
+            display: flex;
+            align-items: stretch;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.13);
+        }
+        .white-on-black {
+            background: #000;
+            color: #fff;
+        }
+        .black-on-white {
+            background: #fff;
+            color: #000;
+        }
+        .project-thumb {
+            width: 120px;
+            min-width: 120px;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #999;
+            /* If thumbnail is missing, hide */
+            display: none;
+        }
+        .project-thumb.has-thumb {
+            display: flex;
+        }
+        .project-details {
+            flex: 1;
+            padding: 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .project-title {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        .project-description {
+            margin: 0.7rem 0 0.8rem 0;
+            font-size: 1.05rem;
+        }
+        .project-meta {
+            font-size: 0.97rem;
+            margin-bottom: 0.6rem;
+        }
+        .project-links {
+            margin-top: 0.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .project-links a {
+            color: inherit;
+            text-decoration: underline;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        .project-links a:hover {
+            color: #0066cc;
+        }
+        .project-extra {
+            margin-top: 0.5rem;
+            color: #bbb;
+            font-size: 0.95rem;
+        }
+        @media (max-width: 700px) {
+            .project-details {
+                padding: 1rem;
+            }
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1rem;
+            }
+        }
+    </style>
+    <script>
+        // This script will alternate classes for projects if not set
+        document.addEventListener("DOMContentLoaded", function() {
+            const projects = document.querySelectorAll('.projects-list .project-card');
+            projects.forEach((proj, idx) => {
+                proj.classList.remove('white-on-black', 'black-on-white');
+                if (idx % 2 === 0) {
+                    proj.classList.add('white-on-black');
+                } else {
+                    proj.classList.add('black-on-white');
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="navbar">
+        <a href="#" class="logo">DDCcarr1</a>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Projects</a>
+            <a href="#">Contact</a>
+        </nav>
+    </div>
+    <main>
+        <h2>Welcome to DDCcarr1 — Homepage</h2>
+        <p>
+            This is the homepage of DDCcarr1.<br>
+            Explore our website to learn more about our projects, team, and how to get in touch.
+        </p>
+        <section class="projects-list">
+            <!-- Project 1 -->
+            <div class="project-card">
+                <!-- No thumbnail, so hidden -->
+                <div class="project-thumb"></div>
+                <div class="project-details">
+                    <h3 class="project-title">Sample Project</h3>
+                    <p class="project-description">A Sample Project</p>
+                    <div class="project-meta">
+                        <strong>Current Version:</strong> v0.0.0-ALPHA
+                    </div>
+                    <div class="project-links">
+                        <a href="https://ddccarr1.github.io/" target="_blank">Page Link</a>
+                        <a href="https://ddccarr1.github.io/" target="_blank">Documentation</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Project 2 -->
+            <div class="project-card">
+                <!-- No thumbnail, so hidden -->
+                <div class="project-thumb"></div>
+                <div class="project-details">
+                    <h3 class="project-title">Sample Project</h3>
+                    <p class="project-description">A Sample Project</p>
+                    <div class="project-meta">
+                        <strong>Current Version:</strong> v0.0.0-ALPHA
+                    </div>
+                    <div class="project-links">
+                        <a href="https://ddccarr1.github.io/" target="_blank">Page Link</a>
+                        <a href="https://ddccarr1.github.io/" target="_blank">Documentation</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer style="text-align:center; padding:1.5rem 0; background:#000066; color:#fff; margin-top:3rem; font-size:0.95rem;">
+        &copy; 2025 DDCcarr1. All rights reserved.
+    </footer>
+</body>
+</html>
