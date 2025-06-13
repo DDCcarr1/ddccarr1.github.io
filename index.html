@@ -87,8 +87,9 @@
         .projects-list {
             display: flex;
             flex-direction: column;
-            gap: 2rem;
-            margin: 2rem 0;
+            flex-wrap: nowrap;
+            margin: 2rem 0 0 0;
+            padding: 0;
         }
         .project-card {
             display: flex;
@@ -100,6 +101,7 @@
             border-radius: 0;
             overflow: hidden;
             box-shadow: none;
+            margin-bottom: 0; /* Remove space between cards */
         }
         .white-on-black {
             background: #000 !important;
@@ -169,6 +171,23 @@
             max-width: 900px;
             padding: 0 1.5rem;
         }
+        @media (min-width: 900px) {
+            .projects-list {
+                flex-direction: row;
+                flex-wrap: wrap;
+                margin: 2rem 0 0 0;
+                /* Remove gap between projects */
+            }
+            .project-card {
+                width: 50vw;
+                max-width: 50vw;
+                margin-left: 0;
+                transform: none;
+                border-radius: 0;
+                margin-bottom: 0;
+                /* Remove right margin except for last card in row */
+            }
+        }
         @media (max-width: 900px) {
             .project-card,
             .profile-section {
@@ -189,6 +208,10 @@
             .profile-section {
                 padding: 1rem;
             }
+        }
+        /* Remove space between projects for all screen sizes */
+        .projects-list .project-card + .project-card {
+            margin-top: 0;
         }
     </style>
     <script>
