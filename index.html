@@ -11,6 +11,38 @@
             background: #000066;
             color: #fff;
         }
+        .navbar {
+            width: 100%;
+            background: #000066;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.7rem 2rem;
+            box-sizing: border-box;
+        }
+        .navbar .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #fff;
+            text-decoration: none;
+        }
+        .navbar nav {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .navbar nav a {
+            color: #fff;
+            background: #0066cc;
+            text-decoration: none;
+            padding: 0.5em 1.2em;
+            border-radius: 24px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .navbar nav a:hover {
+            background: #004c99;
+        }
         main {
             margin: 2rem 0 0 0;
             padding: 0;
@@ -144,6 +176,7 @@
                 flex-direction: row;
                 flex-wrap: wrap;
                 margin: 2rem 0 0 0;
+                /* Remove gap between projects */
             }
             .project-card {
                 width: 50vw;
@@ -152,6 +185,7 @@
                 transform: none;
                 border-radius: 0;
                 margin-bottom: 0;
+                /* Remove right margin except for last card in row */
             }
         }
         @media (max-width: 900px) {
@@ -164,6 +198,14 @@
                 transform: none;
             }
             .project-details {
+                padding: 1rem;
+            }
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1rem;
+            }
+            .profile-section {
                 padding: 1rem;
             }
         }
@@ -199,8 +241,15 @@
     </script>
 </head>
 <body>
-    <div id="custom-header"></div>
-
+    <div class="navbar">
+        <a href="#" class="logo">DDCcarr1</a>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Projects</a>
+            <a href="#">Contact</a>
+        </nav>
+    </div>
     <main>
         <div class="profile-section">
             <img id="profile-avatar" class="profile-avatar" src="" alt="GitHub Avatar" />
@@ -252,27 +301,8 @@
             </div>
         </section>
     </main>
-
-    <div id="custom-footer"></div>
-
-    <script>
-    // Load header and footer from GitHub repo
-    function loadHTML(url, containerId) {
-        fetch(url)
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.text();
-            })
-            .then(html => {
-                document.getElementById(containerId).innerHTML = html;
-            })
-            .catch(error => {
-                console.error('Error loading HTML:', error);
-            });
-    }
-
-    loadHTML("https://raw.githubusercontent.com/ddccarr1/ddccarr1.github.io/main/.features/header.html", "custom-header");
-    loadHTML("https://raw.githubusercontent.com/ddccarr1/ddccarr1.github.io/main/.features/footer.html", "custom-footer");
-    </script>
+    <footer style="text-align:center; padding:1.5rem 0; background:#000066; color:#fff; margin-top:3rem; font-size:0.95rem;">
+        &copy; 2025 DDCcarr1. All rights reserved.
+    </footer>
 </body>
 </html>
