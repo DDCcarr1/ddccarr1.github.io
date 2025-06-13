@@ -7,8 +7,8 @@
     <style>
         body {
             margin: 0;
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
-            background: linear-gradient(135deg, #000066 0%, #0066cc 100%);
+            font-family: Arial, Verdana, Geneva, Tahoma, sans-serif;
+            background: #000066;
             color: #fff;
         }
         .navbar {
@@ -44,9 +44,45 @@
             background: #004c99;
         }
         main {
-            max-width: 900px;
-            margin: 2rem auto 0 auto;
-            padding: 0 1.5rem;
+            margin: 2rem 0 0 0;
+            padding: 0;
+        }
+        .profile-section {
+            width: 100vw;
+            margin-left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: #0066cc;
+            padding: 1.5rem 2rem;
+            border-radius: 0;
+            margin-bottom: 2.5rem;
+            box-sizing: border-box;
+        }
+        .profile-avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            background: #fff;
+            object-fit: cover;
+        }
+        .profile-details {
+            color: #fff;
+        }
+        .profile-details h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.7rem;
+        }
+        .profile-details p {
+            margin: 0.2rem 0;
+            font-size: 1.05rem;
+        }
+        .profile-link {
+            color: #fff;
+            text-decoration: underline;
+            font-weight: bold;
         }
         .projects-list {
             display: flex;
@@ -57,17 +93,21 @@
         .project-card {
             display: flex;
             align-items: stretch;
-            border-radius: 18px;
+            width: 100vw;
+            max-width: 100vw;
+            margin-left: 50%;
+            transform: translateX(-50%);
+            border-radius: 0;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.13);
+            box-shadow: none;
         }
         .white-on-black {
-            background: #000;
-            color: #fff;
+            background: #000 !important;
+            color: #fff !important;
         }
         .black-on-white {
-            background: #fff;
-            color: #000;
+            background: #fff !important;
+            color: #000 !important;
         }
         .project-thumb {
             width: 120px;
@@ -124,7 +164,20 @@
             color: #bbb;
             font-size: 0.95rem;
         }
-        @media (max-width: 700px) {
+        .intro-section {
+            margin: 2rem auto;
+            max-width: 900px;
+            padding: 0 1.5rem;
+        }
+        @media (max-width: 900px) {
+            .project-card,
+            .profile-section {
+                flex-direction: column;
+                width: 100vw;
+                max-width: 100vw;
+                margin-left: 0;
+                transform: none;
+            }
             .project-details {
                 padding: 1rem;
             }
@@ -133,10 +186,13 @@
                 align-items: flex-start;
                 padding: 1rem;
             }
+            .profile-section {
+                padding: 1rem;
+            }
         }
     </style>
     <script>
-        // This script will alternate classes for projects if not set
+        // Alternate project card classes
         document.addEventListener("DOMContentLoaded", function() {
             const projects = document.querySelectorAll('.projects-list .project-card');
             projects.forEach((proj, idx) => {
@@ -147,6 +203,17 @@
                     proj.classList.add('black-on-white');
                 }
             });
+
+            // Fetch GitHub profile info
+            fetch('https://api.github.com/users/ddccarr1')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('profile-avatar').src = data.avatar_url;
+                    document.getElementById('profile-username').textContent = data.login;
+                    document.getElementById('profile-link').href = data.html_url;
+                    document.getElementById('profile-link').textContent = data.html_url;
+                    document.getElementById('profile-bio').textContent = data.bio || '';
+                });
         });
     </script>
 </head>
@@ -161,11 +228,21 @@
         </nav>
     </div>
     <main>
-        <h2>Welcome to DDCcarr1 — Homepage</h2>
-        <p>
-            This is the homepage of DDCcarr1.<br>
-            Explore our website to learn more about our projects, team, and how to get in touch.
-        </p>
+        <div class="profile-section">
+            <img id="profile-avatar" class="profile-avatar" src="" alt="GitHub Avatar" />
+            <div class="profile-details">
+                <h2 id="profile-username">DDCcarr1</h2>
+                <p id="profile-bio"></p>
+                <a id="profile-link" class="profile-link" href="https://github.com/ddccarr1" target="_blank">https://github.com/ddccarr1</a>
+            </div>
+        </div>
+        <div class="intro-section">
+            <h2>Welcome to DDCcarr1 — Homepage</h2>
+            <p>
+                This is the homepage of DDCcarr1.<br>
+                Explore our website to learn more about our projects, team, and how to get in touch.
+            </p>
+        </div>
         <section class="projects-list">
             <!-- Project 1 -->
             <div class="project-card">
