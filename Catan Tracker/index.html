@@ -21,7 +21,7 @@ h1 {
   letter-spacing: 2px;
 }
 .tracker-container {
-  max-width: 900px;
+  max-width: 950px;
   margin: 2em auto;
   background: white;
   border-radius: 14px;
@@ -99,10 +99,78 @@ label {
   color: #2a4d10;
   display: none;
 }
+#reference-links {
+  background: #fdf6e3;
+  border-radius: 10px;
+  margin: 1.5em 0;
+  padding: 1em 1.5em;
+  border: 1px solid #e6cf9e;
+  font-size: 1.05em;
+}
+#reference-links ul {
+  margin: 0.5em 0 0 1.3em;
+  padding-left: 0;
+}
+#reference-links a {
+  color: #2b5d8c;
+  text-decoration: underline;
+}
   </style>
 </head>
 <body>
   <h1>Catan Personal Tracker</h1>
+
+  <div id="reference-links">
+    <strong>Helpful Catan Links:</strong>
+    <ul>
+      <li>
+        <a href="https://www.catan.com/sites/default/files/2021-06/catan_base_rules_2020_200707.pdf" target="_blank" rel="noopener">
+          Official Catan Rulebook (PDF)
+        </a>
+      </li>
+      <li>
+        <a href="https://www.catan.com/game/catan" target="_blank" rel="noopener">
+          Catan Official Website
+        </a>
+      </li>
+      <li>
+        <a href="https://www.catan.com/service/game-rules" target="_blank" rel="noopener">
+          All Catan Game Rules
+        </a>
+      </li>
+      <li>
+        <a href="https://www.ultraboardgames.com/catan/game-rules.php" target="_blank" rel="noopener">
+          Catan Rules Summary (UltraBoardGames)
+        </a>
+      </li>
+      <li>
+        <a href="https://catan.fandom.com/wiki/Catan_Wiki" target="_blank" rel="noopener">
+          Catan Wiki (Strategies, Card List, and FAQ)
+        </a>
+      </li>
+      <li>
+        <a href="https://www.catan.com/service/faq" target="_blank" rel="noopener">
+          Catan Official FAQ
+        </a>
+      </li>
+      <li>
+        <a href="https://www.catan.com/service/how-to-play-catan" target="_blank" rel="noopener">
+          How to Play Catan (Official Videos)
+        </a>
+      </li>
+      <li>
+        <a href="https://www.catan.com/expansions" target="_blank" rel="noopener">
+          Catan Expansions
+        </a>
+      </li>
+      <li>
+        <a href="https://www.catan.com/sites/default/files/2021-06/catan_base_almanac_2020_200707.pdf" target="_blank" rel="noopener">
+          Catan Almanac (Clarifications & Variants)
+        </a>
+      </li>
+    </ul>
+  </div>
+
   <div class="tracker-container">
 
     <section>
@@ -118,9 +186,7 @@ label {
 
     <section>
       <h2>Resources</h2>
-      <div id="resources" class="resource-list">
-        <!-- JS will render resource inputs here -->
-      </div>
+      <div id="resources" class="resource-list"></div>
       <button onclick="updateResources()">Update Resources</button>
     </section>
 
@@ -150,6 +216,7 @@ label {
       <button onclick="build('settlement')">Build Settlement</button>
       <button onclick="build('city')">Build City</button>
       <button onclick="build('road')">Build Road</button>
+      <button onclick="build('devcard')">Buy Dev Card</button>
       <div id="build-history"></div>
     </section>
 
@@ -320,31 +387,83 @@ function displayRollResult(roll, gained) {
 // --- Build Actions ---
 function build(type) {
   if (type === 'settlement') {
+    // Check resources
+    let enough = state.resources.brick>=1 && state.resources.lumber>=1 && state.resources.wool>=1 && state.resources.grain>=1;
+    if (!enough) {
+      alert("You don't have enough resources to build a settlement.");
+      return;
+    }
+    state.resources.brick--;
+    state.resources.lumber--;
+    state.resources.wool--;
+    state.resources.grain--;
     state.victoryPoints++;
     state.builtHistory.push('Settlement');
     alert('Built a settlement! Remember to enter its details above.');
+    renderResources();
   }
   if (type === 'city') {
+    if (state.settlements.filter(s=>s.type==='settlement').length === 0) {
+      alert('No settlements to upgrade to city.');
+      return;
+    }
+    if (state.resources.grain<2 || state.resources.ore<3) {
+      alert("You don't have enough resources to build a city.");
+      return;
+    }
+    // Ask which settlement to replace
+    let settlementOptions = state.settlements.map((s,i)=>s.type==='settlement'?`#${i+1}: ${s.numbers.map((num,j)=>`${num} (${s.resources[j]})`).join(', ')}`:null).filter(Boolean);
+    let replaceIdxStr = prompt("Which settlement do you want to upgrade to a city?\n" + settlementOptions.join('\n') + "\n\nEnter the # number (e.g. 2):");
+    let idx = parseInt(replaceIdxStr);
+    if(isNaN(idx) || idx<1 || idx>state.settlements.length || state.settlements[idx-1].type!=="settlement") {
+      alert("Invalid selection.");
+      return;
+    }
+    state.resources.grain -= 2;
+    state.resources.ore -= 3;
+    state.settlements[idx-1].type = "city";
     state.cities++;
     state.victoryPoints++;
     state.builtHistory.push('City');
-    alert('Built a city! Remember to enter its details above.');
+    alert('Built a city!');
+    renderSettlements();
+    renderResources();
   }
   if (type === 'road') {
+    if (state.resources.brick<1 || state.resources.lumber<1) {
+      alert("You don't have enough resources to build a road.");
+      return;
+    }
+    state.resources.brick--;
+    state.resources.lumber--;
     state.roads++;
     state.builtHistory.push('Road');
     askLongestRoad();
+    renderResources();
+  }
+  if (type === 'devcard') {
+    if (state.resources.grain<1 || state.resources.wool<1 || state.resources.ore<1) {
+      alert("You don't have enough resources to buy a development card.");
+      return;
+    }
+    state.resources.grain--;
+    state.resources.wool--;
+    state.resources.ore--;
+    // Ask what card you got
+    let cardType = prompt("What development card did you get? (knight, victory_point, road_building, monopoly, year_of_plenty)").trim().toLowerCase();
+    if (!["knight","victory_point","road_building","monopoly","year_of_plenty"].includes(cardType)) {
+      alert("Invalid card type.");
+      return;
+    }
+    state.devCards[cardType]++;
+    if(cardType==="victory_point") state.victoryPoints++;
+    state.builtHistory.push('Development Card');
+    alert("Added development card: " + cardType.replace("_"," "));
+    renderDevCards();
+    renderResources();
   }
   renderBuildHistory();
   renderStatus();
-}
-function renderBuildHistory() {
-  const div = document.getElementById('build-history');
-  if (state.builtHistory.length === 0) {
-    div.innerHTML = '<em>No build actions yet.</em>';
-    return;
-  }
-  div.innerHTML = '<strong>Build History:</strong> ' + state.builtHistory.join(', ');
 }
 
 // --- Dev Cards ---
