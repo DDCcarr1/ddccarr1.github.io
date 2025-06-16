@@ -21,7 +21,7 @@ h1 {
   letter-spacing: 2px;
 }
 .tracker-container {
-  max-width: 800px;
+  max-width: 900px;
   margin: 2em auto;
   background: white;
   border-radius: 14px;
@@ -48,10 +48,10 @@ section {
   font-size: 0.95em;
   color: #555;
 }
-#number-resources-list {
+#settlements-list {
   margin-top: 1em;
 }
-#number-resources-list ul {
+#settlements-list ul {
   list-style: none;
   padding-left: 0;
 }
@@ -78,11 +78,44 @@ input[type="number"] {
 label {
   margin-right: 1em;
 }
+.settlement-block {
+  background: #f8f3e8;
+  border-radius: 8px;
+  padding: 0.75em;
+  margin-bottom: 1em;
+  box-shadow: 0 2px 8px #00000009;
+}
+.settlement-block .resources {
+  margin-top: 0.5em;
+  font-size: 0.95em;
+}
+.roll-result {
+  background: #e0edc9;
+  border-radius: 8px;
+  padding: 0.7em;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  font-weight: bold;
+  color: #2a4d10;
+  display: none;
+}
   </style>
 </head>
 <body>
   <h1>Catan Personal Tracker</h1>
   <div class="tracker-container">
+
+    <section>
+      <h2>Enter a Dice Roll</h2>
+      <form id="roll-form" onsubmit="handleRoll(event)">
+        <label>
+          Roll: <input type="number" id="roll-number" min="2" max="12" required>
+        </label>
+        <button type="submit">Roll!</button>
+      </form>
+      <div class="roll-result" id="roll-result"></div>
+    </section>
+
     <section>
       <h2>Resources</h2>
       <div id="resources" class="resource-list">
@@ -92,24 +125,24 @@ label {
     </section>
 
     <section>
-      <h2>Numbers - Resources</h2>
-      <form id="number-resource-form" onsubmit="addNumberResource(event)">
+      <h2>Settlements / Cities</h2>
+      <form id="settlement-form" onsubmit="addSettlement(event)">
         <label>
-          Number: <input type="number" min="2" max="12" id="nr-number" required>
+          Type:
+          <select id="settlement-type" required>
+            <option value="settlement">Settlement</option>
+            <option value="city">City</option>
+          </select>
         </label>
         <label>
-          Resource:
-          <select id="nr-resource" required>
-            <option value="brick">Brick</option>
-            <option value="lumber">Lumber</option>
-            <option value="wool">Wool</option>
-            <option value="grain">Grain</option>
-            <option value="ore">Ore</option>
-          </select>
+          Numbers (comma separated, e.g. 6,9,11): <input id="settlement-numbers" required pattern="^(\d{1,2})(,\d{1,2})*$">
+        </label>
+        <label>
+          Resources (comma separated, e.g. brick,grain,ore): <input id="settlement-resources" required pattern="^([a-z]+)(,[a-z]+)*$">
         </label>
         <button type="submit">Add</button>
       </form>
-      <div id="number-resources-list"></div>
+      <div id="settlements-list"></div>
     </section>
 
     <section>
@@ -145,6 +178,7 @@ label {
     </section>
   </div>
   <script>
+const RES_TYPES = ['brick','lumber','wool','grain','ore'];
 const state = {
   resources: {
     brick: 0,
@@ -153,9 +187,7 @@ const state = {
     grain: 0,
     ore: 0
   },
-  numberResources: {},
-  settlements: 0,
-  cities: 0,
+  settlements: [], // {type: 'settlement'|'city', numbers: [int], resources: [str]}
   roads: 0,
   builtHistory: [],
   devCards: {
@@ -169,12 +201,15 @@ const state = {
   largestArmy: false,
   longestRoad: false,
   longestRoadLength: 0,
-  victoryPoints: 0
+  victoryPoints: 0,
+  cities: 0
 };
+
+// --- Resource UI ---
 function renderResources() {
   const resDiv = document.getElementById('resources');
   resDiv.innerHTML = '';
-  for (const res in state.resources) {
+  for (const res of RES_TYPES) {
     const label = document.createElement('label');
     label.innerHTML = `
       ${res.charAt(0).toUpperCase() + res.slice(1)}
@@ -184,56 +219,116 @@ function renderResources() {
   }
 }
 function updateResources() {
-  for (const res in state.resources) {
+  for (const res of RES_TYPES) {
     state.resources[res] = parseInt(document.getElementById(`res-${res}`).value) || 0;
   }
   renderStatus();
 }
-function addNumberResource(e) {
+
+// --- Settlement/City Tracking ---
+function addSettlement(e) {
   e.preventDefault();
-  const num = parseInt(document.getElementById('nr-number').value);
-  const res = document.getElementById('nr-resource').value;
-  if (!state.numberResources[num]) state.numberResources[num] = [];
-  if (!state.numberResources[num].includes(res)) state.numberResources[num].push(res);
-  renderNumberResources();
-}
-function renderNumberResources() {
-  const div = document.getElementById('number-resources-list');
-  if (Object.keys(state.numberResources).length === 0) {
-    div.innerHTML = '<em>No numbers tracked.</em>';
+  const type = document.getElementById('settlement-type').value;
+  const nums = document.getElementById('settlement-numbers').value.split(',').map(x=>parseInt(x.trim()));
+  const ress = document.getElementById('settlement-resources').value.split(',').map(x=>x.trim().toLowerCase());
+  if(nums.length !== ress.length) {
+    alert("The number of numbers and resources must be the same.");
     return;
   }
-  let html = '<ul>';
-  for (const num of Object.keys(state.numberResources).sort((a, b) => a - b)) {
-    html += `<li><strong>${num}:</strong> ${state.numberResources[num].join(', ')}
-      <button onclick="removeNumberResource(${num})" title="Remove this number">&times;</button>
-    </li>`;
+  state.settlements.push({type, numbers: nums, resources: ress});
+  if(type==="settlement") {
+    state.victoryPoints++;
+  } else {
+    state.cities++;
+    state.victoryPoints++;
   }
-  html += '</ul>';
+  renderSettlements();
+  renderStatus();
+  document.getElementById('settlement-form').reset();
+}
+function renderSettlements() {
+  const div = document.getElementById('settlements-list');
+  if (state.settlements.length === 0) {
+    div.innerHTML = '<em>No settlements or cities entered yet.</em>';
+    return;
+  }
+  let html = '';
+  state.settlements.forEach((s,i) => {
+    html += `<div class="settlement-block">
+      <strong>${s.type.charAt(0).toUpperCase()+s.type.slice(1)} #${i+1}</strong><br>
+      On: ${s.numbers.map((num,j)=>`${num} (${s.resources[j]})`).join(', ')}
+      <button onclick="removeSettlement(${i})" style="float:right;" title="Remove">&times;</button>
+    </div>`;
+  });
   div.innerHTML = html;
 }
-function removeNumberResource(num) {
-  delete state.numberResources[num];
-  renderNumberResources();
+function removeSettlement(idx) {
+  const wasCity = state.settlements[idx].type === "city";
+  state.settlements.splice(idx,1);
+  if(wasCity) {
+    state.cities = Math.max(0, state.cities-1);
+  }
+  state.victoryPoints = state.settlements.filter(s=>s.type==="settlement").length + state.cities + (state.largestArmy?2:0) + (state.longestRoad?2:0) + state.devCards.victory_point;
+  renderSettlements();
+  renderStatus();
 }
+
+// --- Roll Handler ---
+function handleRoll(e) {
+  e.preventDefault();
+  const roll = parseInt(document.getElementById('roll-number').value);
+  let gained = {brick: 0, lumber: 0, wool: 0, grain: 0, ore: 0};
+  state.settlements.forEach(s => {
+    s.numbers.forEach((num, i) => {
+      if(num === roll) {
+        let resType = s.resources[i];
+        if(RES_TYPES.includes(resType)) {
+          gained[resType] += (s.type === 'city' ? 2 : 1);
+        }
+      }
+    });
+  });
+  // Update resources
+  for(const res of RES_TYPES) {
+    state.resources[res] += gained[res];
+  }
+  // Display result
+  displayRollResult(roll, gained);
+  renderResources();
+  renderStatus();
+}
+function displayRollResult(roll, gained) {
+  const div = document.getElementById('roll-result');
+  let any = Object.values(gained).some(v=>v>0);
+  if(!any) {
+    div.textContent = `You gained nothing from rolling ${roll}.`;
+    div.style.display = "block";
+    setTimeout(()=>div.style.display="none", 3500);
+    return;
+  }
+  let msg = `Roll ${roll}: `;
+  let parts = [];
+  for(let res of RES_TYPES) {
+    if(gained[res] > 0) parts.push(`${gained[res]} ${res}`);
+  }
+  msg += "You gained " + parts.join(", ") + ".";
+  div.textContent = msg;
+  div.style.display = "block";
+  setTimeout(()=>div.style.display="none", 4500);
+}
+
+// --- Build Actions ---
 function build(type) {
   if (type === 'settlement') {
-    state.settlements++;
     state.victoryPoints++;
     state.builtHistory.push('Settlement');
-    alert('Built a settlement! Remember to add its number-resource pairs if new.');
+    alert('Built a settlement! Remember to enter its details above.');
   }
   if (type === 'city') {
-    if (state.settlements > 0) {
-      state.settlements--;
-      state.cities++;
-      state.victoryPoints++;
-      state.builtHistory.push('City');
-      alert('Upgraded a settlement to a city! If you upgraded on a new number, add it to numbers above.');
-    } else {
-      alert('No settlements available to upgrade to city.');
-      return;
-    }
+    state.cities++;
+    state.victoryPoints++;
+    state.builtHistory.push('City');
+    alert('Built a city! Remember to enter its details above.');
   }
   if (type === 'road') {
     state.roads++;
@@ -251,6 +346,8 @@ function renderBuildHistory() {
   }
   div.innerHTML = '<strong>Build History:</strong> ' + state.builtHistory.join(', ');
 }
+
+// --- Dev Cards ---
 function addDevCard(e) {
   e.preventDefault();
   const type = document.getElementById('dev-card-type').value;
@@ -291,6 +388,7 @@ function checkLargestArmy() {
       state.largestArmy = true;
       state.victoryPoints += 2;
       alert('You now have the Largest Army! +2 Victory Points.');
+      renderStatus();
     }
   }
 }
@@ -315,12 +413,14 @@ function askLongestRoad() {
     }, 300);
   }
 }
+
+// --- Status ---
 function renderStatus() {
   const div = document.getElementById('status');
   div.innerHTML = `
     <ul>
       <li><strong>Victory Points:</strong> ${state.victoryPoints}</li>
-      <li><strong>Settlements:</strong> ${state.settlements}</li>
+      <li><strong>Settlements:</strong> ${state.settlements.filter(s=>s.type==='settlement').length}</li>
       <li><strong>Cities:</strong> ${state.cities}</li>
       <li><strong>Roads:</strong> ${state.roads}</li>
       <li><strong>Largest Army:</strong> ${state.largestArmy ? 'Yes' : 'No'} (${state.knightsPlayed} knights played)</li>
@@ -328,9 +428,10 @@ function renderStatus() {
     </ul>
   `;
 }
+
 // --- Initial Render ---
 renderResources();
-renderNumberResources();
+renderSettlements();
 renderBuildHistory();
 renderDevCards();
 renderStatus();
