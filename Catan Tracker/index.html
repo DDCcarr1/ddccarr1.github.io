@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Catan Personal Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
+  color: #222;
+  margin: 0;
+  padding: 0;
+}
+h1 {
+  background: #d9b26f;
+  color: #222;
+  margin: 0;
+  padding: 1em;
+  text-align: center;
+  letter-spacing: 2px;
+}
+.tracker-container {
+  max-width: 800px;
+  margin: 2em auto;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 3px 16px #0001;
+  padding: 2em;
+}
+section {
+  margin-bottom: 2em;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1em;
+}
+.resource-list {
+  display: flex;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+.resource-list label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#build-history {
+  margin-top: 1em;
+  font-size: 0.95em;
+  color: #555;
+}
+#number-resources-list {
+  margin-top: 1em;
+}
+#number-resources-list ul {
+  list-style: none;
+  padding-left: 0;
+}
+#dev-cards-list {
+  margin-top: 1em;
+}
+button {
+  background: #d9b26f;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5em 1em;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 0.5em;
+  margin-top: 0.5em;
+  transition: background 0.2s;
+}
+button:hover {
+  background: #b18a4b;
+}
+input[type="number"] {
+  width: 60px;
+}
+label {
+  margin-right: 1em;
+}
+  </style>
+</head>
+<body>
+  <h1>Catan Personal Tracker</h1>
+  <div class="tracker-container">
+    <section>
+      <h2>Resources</h2>
+      <div id="resources" class="resource-list">
+        <!-- JS will render resource inputs here -->
+      </div>
+      <button onclick="updateResources()">Update Resources</button>
+    </section>
+
+    <section>
+      <h2>Numbers - Resources</h2>
+      <form id="number-resource-form" onsubmit="addNumberResource(event)">
+        <label>
+          Number: <input type="number" min="2" max="12" id="nr-number" required>
+        </label>
+        <label>
+          Resource:
+          <select id="nr-resource" required>
+            <option value="brick">Brick</option>
+            <option value="lumber">Lumber</option>
+            <option value="wool">Wool</option>
+            <option value="grain">Grain</option>
+            <option value="ore">Ore</option>
+          </select>
+        </label>
+        <button type="submit">Add</button>
+      </form>
+      <div id="number-resources-list"></div>
+    </section>
+
+    <section>
+      <h2>Build</h2>
+      <button onclick="build('settlement')">Build Settlement</button>
+      <button onclick="build('city')">Build City</button>
+      <button onclick="build('road')">Build Road</button>
+      <div id="build-history"></div>
+    </section>
+
+    <section>
+      <h2>Development Cards</h2>
+      <form id="dev-card-form" onsubmit="addDevCard(event)">
+        <label>
+          Type:
+          <select id="dev-card-type" required>
+            <option value="knight">Knight</option>
+            <option value="victory_point">Victory Point</option>
+            <option value="road_building">Road Building</option>
+            <option value="monopoly">Monopoly</option>
+            <option value="year_of_plenty">Year of Plenty</option>
+          </select>
+        </label>
+        <button type="submit">Add</button>
+      </form>
+      <div id="dev-cards-list"></div>
+      <button onclick="playKnight()">Play Knight</button>
+    </section>
+
+    <section>
+      <h2>Status</h2>
+      <div id="status"></div>
+    </section>
+  </div>
+  <script>
+const state = {
+  resources: {
+    brick: 0,
+    lumber: 0,
+    wool: 0,
+    grain: 0,
+    ore: 0
+  },
+  numberResources: {},
+  settlements: 0,
+  cities: 0,
+  roads: 0,
+  builtHistory: [],
+  devCards: {
+    knight: 0,
+    victory_point: 0,
+    road_building: 0,
+    monopoly: 0,
+    year_of_plenty: 0
+  },
+  knightsPlayed: 0,
+  largestArmy: false,
+  longestRoad: false,
+  longestRoadLength: 0,
+  victoryPoints: 0
+};
+function renderResources() {
+  const resDiv = document.getElementById('resources');
+  resDiv.innerHTML = '';
+  for (const res in state.resources) {
+    const label = document.createElement('label');
+    label.innerHTML = `
+      ${res.charAt(0).toUpperCase() + res.slice(1)}
+      <input type="number" min="0" id="res-${res}" value="${state.resources[res]}">
+    `;
+    resDiv.appendChild(label);
+  }
+}
+function updateResources() {
+  for (const res in state.resources) {
+    state.resources[res] = parseInt(document.getElementById(`res-${res}`).value) || 0;
+  }
+  renderStatus();
+}
+function addNumberResource(e) {
+  e.preventDefault();
+  const num = parseInt(document.getElementById('nr-number').value);
+  const res = document.getElementById('nr-resource').value;
+  if (!state.numberResources[num]) state.numberResources[num] = [];
+  if (!state.numberResources[num].includes(res)) state.numberResources[num].push(res);
+  renderNumberResources();
+}
+function renderNumberResources() {
+  const div = document.getElementById('number-resources-list');
+  if (Object.keys(state.numberResources).length === 0) {
+    div.innerHTML = '<em>No numbers tracked.</em>';
+    return;
+  }
+  let html = '<ul>';
+  for (const num of Object.keys(state.numberResources).sort((a, b) => a - b)) {
+    html += `<li><strong>${num}:</strong> ${state.numberResources[num].join(', ')}
+      <button onclick="removeNumberResource(${num})" title="Remove this number">&times;</button>
+    </li>`;
+  }
+  html += '</ul>';
+  div.innerHTML = html;
+}
+function removeNumberResource(num) {
+  delete state.numberResources[num];
+  renderNumberResources();
+}
+function build(type) {
+  if (type === 'settlement') {
+    state.settlements++;
+    state.victoryPoints++;
+    state.builtHistory.push('Settlement');
+    alert('Built a settlement! Remember to add its number-resource pairs if new.');
+  }
+  if (type === 'city') {
+    if (state.settlements > 0) {
+      state.settlements--;
+      state.cities++;
+      state.victoryPoints++;
+      state.builtHistory.push('City');
+      alert('Upgraded a settlement to a city! If you upgraded on a new number, add it to numbers above.');
+    } else {
+      alert('No settlements available to upgrade to city.');
+      return;
+    }
+  }
+  if (type === 'road') {
+    state.roads++;
+    state.builtHistory.push('Road');
+    askLongestRoad();
+  }
+  renderBuildHistory();
+  renderStatus();
+}
+function renderBuildHistory() {
+  const div = document.getElementById('build-history');
+  if (state.builtHistory.length === 0) {
+    div.innerHTML = '<em>No build actions yet.</em>';
+    return;
+  }
+  div.innerHTML = '<strong>Build History:</strong> ' + state.builtHistory.join(', ');
+}
+function addDevCard(e) {
+  e.preventDefault();
+  const type = document.getElementById('dev-card-type').value;
+  state.devCards[type]++;
+  if (type === 'victory_point') state.victoryPoints++;
+  renderDevCards();
+  renderStatus();
+}
+function renderDevCards() {
+  const div = document.getElementById('dev-cards-list');
+  let html = '<ul>';
+  for (const type in state.devCards) {
+    html += `<li>${type.replace('_',' ').replace(/\b\w/g, l => l.toUpperCase())}: ${state.devCards[type]}</li>`;
+  }
+  html += '</ul>';
+  div.innerHTML = html;
+}
+function playKnight() {
+  if (state.devCards.knight > 0) {
+    state.devCards.knight--;
+    state.knightsPlayed++;
+    alert(
+      `You have played ${state.knightsPlayed} knight(s).\n\nTo claim Largest Army:\n- Have you played more knights than any other player?\n- Are you sure you have at least three played?\n- If you tie, you must surpass the current holder.\n\nClick OK to continue.`
+    );
+    checkLargestArmy();
+    renderDevCards();
+    renderStatus();
+  } else {
+    alert('You have no knights to play.');
+  }
+}
+function checkLargestArmy() {
+  if (state.knightsPlayed >= 3 && !state.largestArmy) {
+    const user = confirm(
+      `You have played ${state.knightsPlayed} knights.\n\nDo you have the largest army? (You must have more played knights than anyone else, and at least three in total.)`
+    );
+    if (user) {
+      state.largestArmy = true;
+      state.victoryPoints += 2;
+      alert('You now have the Largest Army! +2 Victory Points.');
+    }
+  }
+}
+function askLongestRoad() {
+  if (state.roads >= 5) {
+    setTimeout(() => {
+      const length = prompt(
+        `You have built ${state.roads} roads.\n\nThe Longest Road card is awarded for the longest continuous unbroken road of at least 5.\n\n- What is your longest continuous road length (not total built, but a single stretch)?\n- Are there any interruptions or breaks (like another player's settlement)?\n- Has anyone else got a road as long or longer?\n\nWhat is your current longest continuous road length?`
+      );
+      if (length && !isNaN(length) && Number(length) >= 5) {
+        state.longestRoadLength = Number(length);
+        const claim = confirm(
+          `Your longest road is ${length}.\n\nDo you have the Longest Road? (You must have more than anyone else, and it must be at least 5.)`
+        );
+        if (claim && !state.longestRoad) {
+          state.longestRoad = true;
+          state.victoryPoints += 2;
+          alert('You now have the Longest Road! +2 Victory Points.');
+        }
+      }
+      renderStatus();
+    }, 300);
+  }
+}
+function renderStatus() {
+  const div = document.getElementById('status');
+  div.innerHTML = `
+    <ul>
+      <li><strong>Victory Points:</strong> ${state.victoryPoints}</li>
+      <li><strong>Settlements:</strong> ${state.settlements}</li>
+      <li><strong>Cities:</strong> ${state.cities}</li>
+      <li><strong>Roads:</strong> ${state.roads}</li>
+      <li><strong>Largest Army:</strong> ${state.largestArmy ? 'Yes' : 'No'} (${state.knightsPlayed} knights played)</li>
+      <li><strong>Longest Road:</strong> ${state.longestRoad ? 'Yes' : 'No'}${state.longestRoadLength ? ' (' + state.longestRoadLength + ')' : ''}</li>
+    </ul>
+  `;
+}
+// --- Initial Render ---
+renderResources();
+renderNumberResources();
+renderBuildHistory();
+renderDevCards();
+renderStatus();
+  </script>
+</body>
+</html>
