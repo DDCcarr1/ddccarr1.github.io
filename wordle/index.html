@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Custom Wordle Creator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; background: #F8F8F8; margin: 0; padding: 0; }
+    main { max-width: 400px; margin: 2em auto; background: white; padding: 2em; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    h1 { text-align: center; margin-bottom: 1.5em; }
+    .box { display: flex; flex-direction: column; gap: 1em; }
+    #customWord, #guessInput { font-size: 1.1em; padding: 0.6em; }
+    .btn { font-size: 1em; padding: 0.8em; border-radius: 5px; border: none; background: #1976d2; color: white; cursor: pointer;}
+    .btn:hover { background: #145a86; }
+    #share { margin-top: 1em; padding: 0.5em; font-size: 1em; width: 100%; background: #ececec; border-radius: 4px; border: 1px solid #dadada;}
+    .tiles { display: flex; gap: 4px; margin-bottom: 1em;}
+    .tile { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; font-size: 1.2em; background: #e0e0e0; border-radius: 6px;}
+    .exact { background: #6aaa64; color: white;}
+    .exists { background: #c9b458; color: white;}
+    .wrong { background: #787c7e; color: white;}
+    #error { color: #c00; margin-top: 1em;}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Custom Wordle Creator</h1>
+  <div id="creator" class="box" style="display:none;">
+    <label>
+      Enter your secret word (any length):
+      <input type="text" id="customWord" maxlength="20" autocomplete="off">
+    </label>
+    <button class="btn" id="createBtn">Create Wordle Link</button>
+    <input type="text" id="share" readonly style="display:none;">
+  </div>
+  <div id="game" style="display:none;">
+    <div id="tiles" class="tiles"></div>
+    <form id="guessForm" class="box">
+      <label>
+        Guess the word:
+        <input type="text" id="guessInput" maxlength="20" autocomplete="off">
+      </label>
+      <button type="submit" class="btn">Submit Guess</button>
+    </form>
+    <div id="result"></div>
+    <div id="error"></div>
+  </div>
+  <script>
+    // Utility: encode/decode (URL-safe Base64)
+    function encodeWord(word) {
+      return btoa(unescape(encodeURIComponent(word))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    function decodeWord(encoded) {
+      encoded = encoded.replace(/-/g, '+').replace(/_/g, '/');
+      // pad end if needed
+      while (encoded.length % 4) encoded += '=';
+      try {
+        return decodeURIComponent(escape(atob(encoded)));
+      } catch {
+        return "";
+      }
+    }
+
+    // Routing
+    const params = new URLSearchParams(window.location.search);
+    const encodedWord = params.get('w');
+
+    if (encodedWord) {
+      // Game mode
+      document.getElementById('game').style.display = '';
+      let secret = decodeWord(encodedWord);
+      let maxGuesses = Math.max(6, secret.length + 2);
+      let guesses = [];
+      let finished = false;
+
+      function drawTiles(word, guess) {
+        let html = '';
+        let secretArr = word.split('');
+        let guessArr = guess.split('');
+        let exact = Array(word.length).fill(false);
+        let used = Array(word.length).fill(false);
+
+        // Pass 1: exact matches
+        guessArr.forEach((ch, i) => {
+          if (secretArr[i] && ch.toLowerCase() === secretArr[i].toLowerCase()) {
+            exact[i] = true;
+            used[i] = true;
+          }
+        });
+        // Pass 2: exists/in word
+        html = guessArr.map((ch,i) => {
+          let classes = "tile";
+          if (exact[i]) {
+            classes += " exact";
+          } else if (secretArr.some((c,j) => !used[j] && ch.toLowerCase() === c.toLowerCase())) {
+            classes += " exists";
+            // mark letter used
+            let idx = secretArr.findIndex((c,j) => !used[j] && ch.toLowerCase() === c.toLowerCase());
+            used[idx] = true;
+          } else {
+            classes += " wrong";
+          }
+          return `<div class="${classes}">${ch.toUpperCase()}</div>`;
+        }).join('');
+        document.getElementById('tiles').innerHTML = html;
+      }
+
+      // Game events
+      document.getElementById('guessForm').onsubmit = function(e){
+        e.preventDefault();
+        if (finished) return false;
+        let val = document.getElementById('guessInput').value.trim();
+        document.getElementById('error').textContent = '';
+        if (!val || val.length !== secret.length) {
+          document.getElementById('error').textContent = `Guess must be ${secret.length} letters.`;
+          return false;
+        }
+        guesses.push(val);
+        drawTiles(secret, val);
+        if (val.toLowerCase() === secret.toLowerCase()) {
+          finished = true;
+          document.getElementById('result').innerHTML = `<b>Congratulations!</b> You solved it in ${guesses.length} guess${guesses.length>1?'es':''}.<br>Secret word: <b>${secret}</b>`;
+        } else if (guesses.length >= maxGuesses) {
+          finished = true;
+          document.getElementById('result').innerHTML = `<b>Game Over!</b> You used all ${maxGuesses} guesses.<br>The word was: <b>${secret}</b>`;
+        } else {
+          document.getElementById('result').textContent = `Guesses left: ${maxGuesses - guesses.length}`;
+        }
+        document.getElementById('guessInput').value = '';
+        return false;
+      };
+      // Initialize
+      document.getElementById('result').textContent = `Guesses left: ${maxGuesses}`;
+      drawTiles(secret, " ".repeat(secret.length)); // Show empty tiles
+
+    } else {
+      // Creator mode
+      document.getElementById('creator').style.display = '';
+      document.getElementById('createBtn').onclick = function(){
+        let word = document.getElementById('customWord').value.trim();
+        if (!word.match(/^[a-zA-Z]{2,20}$/)) {
+          alert("Word must be 2-20 letters, letters only.");
+          return;
+        }
+        const url = `${location.origin}${location.pathname}?w=${encodeWord(word)}`;
+        const share = document.getElementById('share');
+        share.value = url;
+        share.style.display = '';
+        share.select();
+      }
+    }
+  </script>
+</main>
+</body>
+</html>
