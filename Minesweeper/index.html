@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Mobile Minesweeper</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #2a2a3d;
+      color: #f6f6f6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 { margin-top: 1em; font-size:2em;}
+    #game {
+      display: grid;
+      grid-gap: 6px;
+      margin: 1em 0;
+      touch-action: manipulation;
+    }
+    .cell {
+      width: 42px; height: 42px;
+      font-size: 1.4em;
+      background: #444466;
+      border-radius: 6px;
+      border: none;
+      color: #eee;
+      text-align: center;
+      user-select: none;
+      transition: background 0.2s;
+      box-shadow: 0 1px 3px #0002;
+    }
+    .cell:active { background: #3d3d58; }
+    .cell.revealed { background: #ddd; color: #222; }
+    .cell.mine { background: #f44336; color: #fff;}
+    .cell.flagged { background: #ffca28; color: #333; }
+    #controls {
+      display: flex;
+      gap: 1em;
+      margin-bottom: 1em;
+      flex-wrap: wrap;
+    }
+    button { background: #4d53fc; color:#fff; border:none; border-radius:8px; font-size:1em; padding:0.7em 1em; }
+    button:active { background: #3840c0; }
+    #status {margin-bottom: 1em; font-size:1.2em;}
+    @media (max-width: 500px) {
+      .cell { width: 32px; height: 32px; font-size: 1em;}
+      h1 { font-size: 1.2em;}
+    }
+  </style>
+</head>
+<body>
+  <h1>Mobile Minesweeper</h1>
+  <div id="controls">
+    <button id="reset">Restart</button>
+    <label>
+      Size:
+      <select id="size">
+        <option value="8">Small</option>
+        <option value="12" selected>Medium</option>
+        <option value="16">Large</option>
+      </select>
+    </label>
+    <label>
+      Mines:
+      <select id="mines">
+        <option value="10">10</option>
+        <option value="20" selected>20</option>
+        <option value="40">40</option>
+      </select>
+    </label>
+  </div>
+  <div id="status"></div>
+  <div id="game"></div>
+  <script>
+    // Minesweeper logic
+    const gameDiv = document.getElementById("game");
+    const statusDiv = document.getElementById("status");
+    const resetBtn = document.getElementById("reset");
+    const sizeSelect = document.getElementById("size");
+    const minesSelect = document.getElementById("mines");
+    let SIZE = parseInt(sizeSelect.value);
+    let MINES = parseInt(minesSelect.value);
+
+    // State
+    let board, mineLocations, revealed, flagged, lost, started;
+
+    class Cell {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.mine = false;
+        this.num = 0;
+        this.revealed = false;
+        this.flagged = false;
+        this.el = null;
+      }
+    }
+
+    function generateBoard() {
+      board = Array.from({length: SIZE}, (_, y)=>
+        Array.from({length: SIZE}, (_, x)=>new Cell(x,y))
+      );
+      revealed = 0; flagged = 0; lost = false; started = false;
+      placeMines();
+      countMines();
+      render();
+      statusDiv.textContent="";
+    }
+
+    function placeMines() {
+      mineLocations = [];
+      while (mineLocations.length < MINES) {
+        let x = Math.floor(Math.random()*SIZE);
+        let y = Math.floor(Math.random()*SIZE);
+        if (!board[y][x].mine) {
+          board[y][x].mine = true;
+          mineLocations.push([x,y]);
+        }
+      }
+    }
+
+    function countMines() {
+      for (let y=0; y<SIZE; ++y) {
+        for (let x=0; x<SIZE; ++x) {
+          let ct = 0;
+          for (let dy=-1; dy<=1; ++dy)
+            for (let dx=-1; dx<=1; ++dx) {
+              if(dx === 0 && dy === 0) continue;
+              let nx=x+dx, ny=y+dy;
+              if(nx>=0 && nx<SIZE && ny>=0 && ny<SIZE) {
+                if(board[ny][nx].mine) ct++;
+              }
+            }
+          board[y][x].num = ct;
+        }
+      }
+    }
+
+    function render() {
+      gameDiv.innerHTML = "";
+      gameDiv.style.gridTemplateColumns = `repeat(${SIZE}, 1fr)`;
+      gameDiv.style.gridTemplateRows = `repeat(${SIZE}, 1fr)`;
+      for (let y=0; y<SIZE; ++y) {
+        for (let x=0; x<SIZE; ++x) {
+          const cell = board[y][x];
+          const div = document.createElement("button");
+          div.className = "cell";
+          div.oncontextmenu = e=>e.preventDefault();
+          div.addEventListener("click", e=>handleTap(cell,e));
+          div.addEventListener("touchstart", e=>cellTouch(cell,e));
+          div.addEventListener("contextmenu", e=>handleFlag(cell,e));
+          cell.el = div;
+          updateCell(cell);
+          gameDiv.appendChild(div);
+        }
+      }
+    }
+
+    function updateCell(cell) {
+      cell.el.className = "cell" + 
+        (cell.flagged?" flagged":"") + 
+        (cell.revealed?" revealed":"") +
+        (cell.mine && lost && cell.revealed?" mine":"");
+      cell.el.textContent = cell.revealed
+        ? cell.mine ? "💣"
+        : (cell.num ? cell.num : "")
+        : cell.flagged ? "🚩"
+        : "";
+    }
+
+    // Distinguish tap (reveal) vs long-press (flag) for mobile
+    let longPressTimer;
+    function cellTouch(cell, e) {
+      e.preventDefault();
+      clearTimeout(longPressTimer);
+      longPressTimer = setTimeout(()=>{
+        handleFlag(cell, e);
+      }, 500); // long press
+      cell.el.addEventListener('touchend', ()=>{
+        clearTimeout(longPressTimer);
+      }, {once:true});
+    }
+
+    function handleTap(cell, e) {
+      if (lost) return;
+      if (cell.revealed || cell.flagged) return;
+      if (!started) { started=true; statusDiv.textContent=""; }
+      revealCell(cell.x, cell.y);
+      checkWin();
+    }
+
+    function handleFlag(cell, e) {
+      e.preventDefault();
+      if (lost) return;
+      if (cell.revealed) return;
+      cell.flagged = !cell.flagged;
+      updateCell(cell);
+      flagged = board.flat().filter(c=>c.flagged).length;
+      checkWin();
+    }
+
+    function revealCell(x,y) {
+      const cell = board[y][x];
+      if(cell.revealed || cell.flagged) return;
+      cell.revealed = true;
+      updateCell(cell);
+      revealed++;
+      if(cell.mine) {
+        lost = true;
+        showAllMines();
+        statusDiv.textContent = "You hit a mine! 💥";
+        return;
+      }
+      if(cell.num === 0) {
+        for(let dy=-1; dy<=1; ++dy) for(let dx=-1; dx<=1; ++dx) {
+          let nx=x+dx, ny=y+dy;
+          if(nx>=0 && nx<SIZE && ny>=0 && ny<SIZE)
+            if(!board[ny][nx].revealed)
+              revealCell(nx, ny);
+        }
+      }
+    }
+
+    function showAllMines() {
+      mineLocations.forEach(([x,y])=>{
+        board[y][x].revealed = true;
+        updateCell(board[y][x]);
+      });
+    }
+
+    function checkWin() {
+      if (lost) return;
+      if (revealed + MINES === SIZE*SIZE) {
+        statusDiv.textContent = "You win! 🎉";
+        board.flat().forEach(cell=>{
+          if(cell.mine) {
+            cell.flagged=true;
+            updateCell(cell);
+          }
+        });
+      }
+    }
+
+    // Controls
+    resetBtn.onclick = ()=>{SIZE=parseInt(sizeSelect.value);MINES=parseInt(minesSelect.value);generateBoard();}
+    sizeSelect.onchange = resetBtn.onclick;
+    minesSelect.onchange = resetBtn.onclick;
+
+    generateBoard();
+  </script>
+</body>
+</html>
