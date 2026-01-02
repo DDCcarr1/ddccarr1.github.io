@@ -38,19 +38,5 @@
     allowfullscreen
     referrerpolicy="no-referrer">
   </iframe>
-
-  <button class="unmute-btn" id="unmute">Unmute</button>
-
-  <script>
-    // Attempt to unmute when user clicks the Unmute button (user gesture required by browsers).
-    const unmuteBtn = document.getElementById('unmute');
-    unmuteBtn.addEventListener('click', () => {
-      const iframe = document.querySelector('.video-frame');
-      const src = new URL(iframe.src);
-      src.searchParams.set('mute', '0');
-      iframe.src = src.toString();
-      unmuteBtn.style.display = 'none';
-    });
-  </script>
 </body>
 </html>
