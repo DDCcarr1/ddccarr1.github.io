@@ -137,13 +137,17 @@
             try {
                 // Remove the # if present
                 const cleanHex = hex.replace('#', '');
-                
-                // Try to fetch from colornames.org API
-                const response = await fetch(`https://chir.mmears.com/api/convert?hex=${cleanHex}`);
-                
+
+                // Use the color.pizza API (same service as meodai's project)
+                // example: https://api.color.pizza/v1/ff0000
+                const response = await fetch(`https://api.color.pizza/v1/${cleanHex}`);
+
                 if (response.ok) {
                     const data = await response.json();
-                    return data.name || 'Unknown Color';
+                    if (data.colors && data.colors.length > 0) {
+                        return data.colors[0].name || 'Unknown Color';
+                    }
+                    return 'Unknown Color';
                 } else {
                     return 'Unknown Color';
                 }
@@ -213,10 +217,10 @@
                     error = 'Invalid RGB values. Use values 0-255.';
                 }
             } else {
-                // Default color if no parameters
-                r = 66;
-                g = 135;
-                b = 245;
+                // Generate random color if no parameters
+                r = Math.floor(Math.random() * 256);
+                g = Math.floor(Math.random() * 256);
+                b = Math.floor(Math.random() * 256);
             }
 
             // Display error if present
@@ -225,6 +229,12 @@
                 errorContainer.innerHTML = `<div class="error">${error}</div>`;
             } else {
                 errorContainer.innerHTML = '';
+            }
+
+            // Update URL with color parameters if no error
+            if (!error && !params.has('hex') && !params.has('r')) {
+                const newUrl = `${window.location.pathname}?r=${r}&g=${g}&b=${b}`;
+                window.history.replaceState({}, '', newUrl);
             }
 
             // Update display
