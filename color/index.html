@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Viewer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .color-display {
+            width: 100%;
+            height: 300px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .color-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            margin: 12px 0;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        .label {
+            font-weight: 600;
+            color: #333;
+            display: inline-block;
+            min-width: 80px;
+            text-align: left;
+        }
+
+        .value {
+            color: #667eea;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .color-name {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #333;
+            margin: 15px 0;
+        }
+
+        .help-text {
+            color: #888;
+            font-size: 0.95em;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            line-height: 1.6;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .loading {
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Color Viewer</h1>
+        <div class="color-display" id="colorDisplay"></div>
+        
+        <div id="errorContainer"></div>
+        
+        <div class="color-info">
+            <div class="info-item">
+                <span class="label">Hex:</span>
+                <span class="value" id="hexValue">#000000</span>
+            </div>
+            <div class="info-item">
+                <span class="label">RGB:</span>
+                <span class="value" id="rgbValue">rgb(0, 0, 0)</span>
+            </div>
+            <div class="color-name loading" id="colorName">Loading color name...</div>
+        </div>
+
+        <div class="help-text">
+            <strong>Usage Examples:</strong><br>
+            <code>?r=255&g=202&b=20</code><br>
+            <code>?red=54&green=66&blue=202</code><br>
+            <code>?hex=FF33FF</code>
+        </div>
+    </div>
+
+    <script>
+        async function getColorName(hex) {
+            try {
+                // Remove the # if present
+                const cleanHex = hex.replace('#', '');
+                
+                // Try to fetch from colornames.org API
+                const response = await fetch(`https://chir.mmears.com/api/convert?hex=${cleanHex}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.name || 'Unknown Color';
+                } else {
+                    return 'Unknown Color';
+                }
+            } catch (error) {
+                console.error('Error fetching color name:', error);
+                return 'Unknown Color';
+            }
+        }
+
+        function hexToRgb(hex) {
+            const cleanHex = hex.replace('#', '');
+            if (cleanHex.length !== 6) return null;
+            
+            const r = parseInt(cleanHex.substring(0, 2), 16);
+            const g = parseInt(cleanHex.substring(2, 4), 16);
+            const b = parseInt(cleanHex.substring(4, 6), 16);
+            
+            return { r, g, b };
+        }
+
+        function rgbToHex(r, g, b) {
+            return '#' + [r, g, b].map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('').toUpperCase();
+        }
+
+        function isValidHex(hex) {
+            return /^#?[0-9A-F]{6}$/i.test(hex);
+        }
+
+        function isValidRgb(r, g, b) {
+            return [r, g, b].every(val => val >= 0 && val <= 255 && Number.isInteger(val));
+        }
+
+        async function loadColor() {
+            const params = new URLSearchParams(window.location.search);
+            let r, g, b;
+            let error = null;
+
+            // Try to get color from different parameter formats
+            if (params.has('hex')) {
+                const hex = params.get('hex');
+                if (!isValidHex(hex)) {
+                    error = 'Invalid hex color. Use format: hex=FF33FF';
+                } else {
+                    const hex2 = hex.startsWith('#') ? hex : '#' + hex;
+                    const rgb = hexToRgb(hex2);
+                    r = rgb.r;
+                    g = rgb.g;
+                    b = rgb.b;
+                }
+            } else if (params.has('r') && params.has('g') && params.has('b')) {
+                r = parseInt(params.get('r'));
+                g = parseInt(params.get('g'));
+                b = parseInt(params.get('b'));
+                
+                if (!isValidRgb(r, g, b)) {
+                    error = 'Invalid RGB values. Use values 0-255.';
+                }
+            } else if (params.has('red') && params.has('green') && params.has('blue')) {
+                r = parseInt(params.get('red'));
+                g = parseInt(params.get('green'));
+                b = parseInt(params.get('blue'));
+                
+                if (!isValidRgb(r, g, b)) {
+                    error = 'Invalid RGB values. Use values 0-255.';
+                }
+            } else {
+                // Default color if no parameters
+                r = 66;
+                g = 135;
+                b = 245;
+            }
+
+            // Display error if present
+            const errorContainer = document.getElementById('errorContainer');
+            if (error) {
+                errorContainer.innerHTML = `<div class="error">${error}</div>`;
+            } else {
+                errorContainer.innerHTML = '';
+            }
+
+            // Update display
+            const hex = rgbToHex(r, g, b);
+            const colorDisplay = document.getElementById('colorDisplay');
+            const hexValue = document.getElementById('hexValue');
+            const rgbValue = document.getElementById('rgbValue');
+            const colorName = document.getElementById('colorName');
+
+            colorDisplay.style.backgroundColor = hex;
+            hexValue.textContent = hex;
+            rgbValue.textContent = `rgb(${r}, ${g}, ${b})`;
+
+            // Get color name
+            const name = await getColorName(hex);
+            colorName.textContent = name;
+            colorName.classList.remove('loading');
+        }
+
+        // Load color when page loads
+        window.addEventListener('load', loadColor);
+    </script>
+</body>
+</html>
