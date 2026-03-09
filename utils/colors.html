@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color Viewer</title>
+    <title>Color Viewer | DDCcarr1</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -18,7 +18,6 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .container {
@@ -128,7 +127,9 @@
             <strong>Usage Examples:</strong><br>
             <code>?r=255&g=202&b=20</code><br>
             <code>?red=54&green=66&blue=202</code><br>
-            <code>?hex=FF33FF</code>
+            <code>?hex=FF33FF</code><br>
+            <code>?hex=FF33FF&img=true</code><br>
+            <code>?r=255&g=0&b=0&img=true&x=100&y=100</code>
         </div>
     </div>
 
@@ -231,27 +232,42 @@
                 errorContainer.innerHTML = '';
             }
 
-            // Update URL with color parameters if no error
-            if (!error && !params.has('hex') && !params.has('r')) {
-                const newUrl = `${window.location.pathname}?r=${r}&g=${g}&b=${b}`;
-                window.history.replaceState({}, '', newUrl);
+            // Check for img mode
+            if (params.has('img') && params.get('img') === 'true' && !error) {
+                const x = params.has('x') ? parseInt(params.get('x')) : 256;
+                const y = params.has('y') ? parseInt(params.get('y')) : 256;
+                const canvas = document.createElement('canvas');
+                canvas.width = x;
+                canvas.height = y;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                ctx.fillRect(0, 0, x, y);
+                const dataURL = canvas.toDataURL('image/png');
+                document.body.innerHTML = `<img src="${dataURL}" alt="Color ${rgbToHex(r,g,b)}" style="width: 100vw; height: 100vh; object-fit: cover; position: fixed; top: 0; left: 0;" />`;
+                document.title = `Color ${rgbToHex(r,g,b)}`;
+            } else {
+                // Update URL with color parameters if no error
+                if (!error && !params.has('hex') && !params.has('r')) {
+                    const newUrl = `${window.location.pathname}?r=${r}&g=${g}&b=${b}`;
+                    window.history.replaceState({}, '', newUrl);
+                }
+
+                // Update display
+                const hex = rgbToHex(r, g, b);
+                const colorDisplay = document.getElementById('colorDisplay');
+                const hexValue = document.getElementById('hexValue');
+                const rgbValue = document.getElementById('rgbValue');
+                const colorName = document.getElementById('colorName');
+
+                colorDisplay.style.backgroundColor = hex;
+                hexValue.textContent = hex;
+                rgbValue.textContent = `rgb(${r}, ${g}, ${b})`;
+
+                // Get color name
+                const name = await getColorName(hex);
+                colorName.textContent = name;
+                colorName.classList.remove('loading');
             }
-
-            // Update display
-            const hex = rgbToHex(r, g, b);
-            const colorDisplay = document.getElementById('colorDisplay');
-            const hexValue = document.getElementById('hexValue');
-            const rgbValue = document.getElementById('rgbValue');
-            const colorName = document.getElementById('colorName');
-
-            colorDisplay.style.backgroundColor = hex;
-            hexValue.textContent = hex;
-            rgbValue.textContent = `rgb(${r}, ${g}, ${b})`;
-
-            // Get color name
-            const name = await getColorName(hex);
-            colorName.textContent = name;
-            colorName.classList.remove('loading');
         }
 
         // Load color when page loads
