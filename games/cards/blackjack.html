@@ -3,20 +3,18 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Blackjack</title>
+<title>Blackjack | DDCcarr1</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #0a0f1b; color: #f5f4f0; padding: 1rem; }
-  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; max-width: 960px; margin: 0 auto; }
-  .panel { background: rgba(0,0,0,.35); border: 1px solid #5f7595; padding: 1rem; border-radius: 8px; }
-  .cards { display: flex; flex-wrap: wrap; gap: .35rem; margin: .5rem 0; }
-  .card { width: 50px; height: 70px; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: #fff; color: #111; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
-  .card.hidden { background: #333; color: #333; }
-  .red { color: #da3c3c; }
-  button { background: #34a853; border: none; color: #fff; padding: .6rem 1rem; font-size: 1rem; margin-right: .5rem; border-radius: 5px; cursor: pointer; }
-  button:disabled { opacity: .5; cursor: default; }
-  #message { margin-top: .7rem; font-weight: bold; }
-  .controls { margin: 1rem 0; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
-  .controls input { width: 80px; padding: .3rem; border-radius: 4px; border: 1px solid #5f7595; background: #0f1a2e; color: #f5f4f0; }
+*{box-sizing:border-box}
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); color: #f5f4f0; padding:1rem; margin:0; min-height:100vh; }
+h1{ text-align:center; margin:0 0 .6rem 0; font-size:1.8rem; text-shadow:0 2px 10px rgba(0,0,0,.6); }
+.container{ max-width:1200px; margin:0 auto }
+.controls button, button { background:#34a853; border:none; color:#fff; padding:.6rem 1rem; font-size:1rem; border-radius:6px; cursor:pointer; box-shadow:0 6px 14px rgba(52,168,83,.25); font-weight:600; transition:all .25s; }
+.controls button:hover:not(:disabled), button:hover:not(:disabled){ transform: translateY(-2px); box-shadow:0 10px 30px rgba(52,168,83,.32); }
+.controls button:disabled, button:disabled{ opacity:.45; cursor:default; }
+.panel{ background: rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.06); padding:1rem; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.6); }
+.card{ box-shadow:0 8px 18px rgba(0,0,0,.6); }
+#message{ color:#ffd700; font-weight:700 }
 </style>
 </head>
 <body>
@@ -51,12 +49,40 @@
   let deck = [];
   let dealer = [];
   let player = [];
-  let bankroll = 1000;
+  const bankrollKey = 'cards_bankroll';
+  let bankroll = loadBankroll();
   let currentBet = 0;
   let gameOver = true;
   let dealerShowsHole = false;
 
   const dealerCardsEl = document.getElementById('dealer-cards');
+
+  function loadBankroll() {
+    const saved = localStorage.getItem(bankrollKey);
+    const val = saved ? Number(saved) : NaN;
+    if (Number.isFinite(val) && val >= 0) {
+      return val;
+    }
+    return 0;
+  }
+
+  function ensureBankroll() {
+    if (bankroll <= 0) {
+      bankroll = 1000;
+      saveBankroll();
+    }
+  }
+
+  function saveBankroll() {
+    localStorage.setItem(bankrollKey, String(bankroll));
+  }
+
+  window.addEventListener('storage', (event) => {
+    if (event.key === bankrollKey) {
+      bankroll = loadBankroll();
+      updateStatus();
+    }
+  });
   const playerCardsEl = document.getElementById('player-cards');
   const dealerScoreEl = document.getElementById('dealer-score');
   const playerScoreEl = document.getElementById('player-score');
@@ -122,9 +148,11 @@
   }
 
   function updateStatus() {
+    ensureBankroll();
     bankrollEl.textContent = formatMoney(bankroll);
     dealerScoreEl.textContent = dealerShowsHole ? scoreFor(dealer) : scoreFor([dealer[1]] || 0);
     playerScoreEl.textContent = scoreFor(player);
+    saveBankroll();
   }
 
   function renderCards() {

@@ -6,103 +6,15 @@
     <title>Color Viewer | DDCcarr1</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 600px;
-            width: 90%;
-            text-align: center;
-        }
-
-        .color-display {
-            width: 100%;
-            height: 300px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 2.5em;
-            font-weight: 700;
-        }
-
-        .color-info {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .info-item {
-            margin: 12px 0;
-            font-size: 1.1em;
-            color: #555;
-        }
-
-        .label {
-            font-weight: 600;
-            color: #333;
-            display: inline-block;
-            min-width: 80px;
-            text-align: left;
-        }
-
-        .value {
-            color: #667eea;
-            font-weight: 600;
-            font-family: 'Courier New', monospace;
-        }
-
-        .color-name {
-            font-size: 1.8em;
-            font-weight: 700;
-            color: #333;
-            margin: 15px 0;
-        }
-
-        .help-text {
-            color: #888;
-            font-size: 0.95em;
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            line-height: 1.6;
-        }
-
-        .error {
-            background: #fee;
-            color: #c33;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .loading {
-            color: #888;
-            font-style: italic;
-        }
-    </style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{ font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:linear-gradient(135deg,#0f2027 0%,#203a43 50%,#2c5364 100%); color:#f5f4f0; padding:1rem; min-height:100vh; }
+.container{ max-width:700px; margin:0 auto; background: rgba(0,0,0,.45); padding:30px; border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+.color-display{ width:100%; height:300px; border-radius:12px; margin-bottom:24px; box-shadow: inset 0 8px 30px rgba(0,0,0,.5); }
+.color-info{ background: rgba(0,0,0,.35); padding:16px; border-radius:10px }
+.label{ color:#ccc; font-weight:600 }
+.value{ color:#ffd700; font-family: monospace }
+.loading{ color:#bbb }
+</style>
 </head>
 <body>
     <div class="container">
