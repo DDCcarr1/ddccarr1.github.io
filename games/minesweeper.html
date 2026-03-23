@@ -181,6 +181,37 @@
             flagToggle.innerText = flagMode ? "MODE: FLAG 🚩" : "MODE: DIG ⛏️";
         });
 
+        // ensure the first click never hits a mine by relocating a mine if necessary
+        function ensureSafe(r, c) {
+            if (!board[r][c].mine) return;
+            // locate a random non-mine cell and swap the mine
+            for (let attempts = 0; attempts < 1000; attempts++) {
+                const rr = Math.floor(Math.random() * config.rows);
+                const cc = Math.floor(Math.random() * config.cols);
+                if (!board[rr][cc].mine && (rr !== r || cc !== c)) {
+                    board[rr][cc].mine = true;
+                    board[r][c].mine = false;
+                    break;
+                }
+            }
+            // recalc adjacent counts
+            for (let rr = 0; rr < config.rows; rr++) {
+                for (let cc = 0; cc < config.cols; cc++) {
+                    if (board[rr][cc].mine) {
+                        board[rr][cc].count = 0;
+                        continue;
+                    }
+                    let cnt = 0;
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            if (board[rr + dr]?.[cc + dc]?.mine) cnt++;
+                        }
+                    }
+                    board[rr][cc].count = cnt;
+                }
+            }
+        }
+
         function updateTimer() {
             seconds++;
             timerLabel.innerText = seconds.toString().padStart(3, '0');
@@ -216,6 +247,8 @@
                     cell.element.classList.add('cell');
                     cell.element.addEventListener('click', () => {
                         if (firstClick && !flagMode) {
+                            // guarantee this cell is safe before starting
+                            ensureSafe(r, c);
                             firstClick = false;
                             timerInterval = setInterval(updateTimer, 1000);
                         }
