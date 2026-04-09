@@ -22,68 +22,153 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
-            text-align: center;
             color: white;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
         }
 
         h1 {
             font-size: 2.5em;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .game-area {
+        .subtitle {
+            font-size: 0.95em;
+            opacity: 0.8;
+        }
+
+        .game-container {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
-            padding: 30px;
+            padding: 25px;
             backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .target-section {
+            text-align: center;
             margin-bottom: 30px;
         }
 
-        .target-color-section {
-            margin-bottom: 30px;
-        }
-
-        .section-label {
-            font-size: 0.9em;
+        .target-label {
+            font-size: 0.85em;
             opacity: 0.8;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .target-color {
-            width: 200px;
-            height: 200px;
-            border-radius: 15px;
+            width: 150px;
+            height: 150px;
+            border-radius: 12px;
             margin: 0 auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border: 3px solid white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .status-message {
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 30px;
+        }
+
+        .status-message.win {
+            color: #4ade80;
+        }
+
+        .status-message.close {
+            color: #fbbf24;
+        }
+
+        .guesses-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 25px;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .guess-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .guess-color-box {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .guess-info {
+            flex: 1;
+        }
+
+        .guess-hex {
+            font-size: 1em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 5px;
+        }
+
+        .guess-distance {
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
+
+        .distance-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .distance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ade80, #fbbf24, #ef4444);
+            border-radius: 2px;
         }
 
         .input-section {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .input-label {
-            font-size: 0.95em;
-            margin-bottom: 10px;
-            opacity: 0.9;
+            font-size: 0.85em;
+            opacity: 0.8;
+            margin-bottom: 8px;
+            display: block;
         }
 
         .input-group {
             display: flex;
             gap: 10px;
-            margin-bottom: 15px;
         }
 
         .hex-input {
             flex: 1;
             padding: 12px;
-            font-size: 1.1em;
-            border: 2px solid white;
+            font-size: 1em;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.1);
             color: white;
@@ -91,10 +176,17 @@
             text-transform: uppercase;
             font-weight: bold;
             backdrop-filter: blur(10px);
+            transition: border-color 0.3s ease;
+        }
+
+        .hex-input:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .hex-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.4);
         }
 
         .guess-btn {
@@ -105,11 +197,11 @@
             color: #667eea;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
             font-weight: bold;
+            transition: all 0.3s ease;
         }
 
-        .guess-btn:hover {
+        .guess-btn:hover:not(:disabled) {
             background: rgba(255, 255, 255, 0.9);
             transform: translateY(-2px);
         }
@@ -123,10 +215,9 @@
             display: flex;
             gap: 10px;
             justify-content: center;
-            flex-wrap: wrap;
         }
 
-        button {
+        .new-game-btn {
             padding: 10px 20px;
             font-size: 0.95em;
             border: 2px solid white;
@@ -134,88 +225,19 @@
             color: white;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
             font-weight: bold;
+            transition: all 0.3s ease;
         }
 
-        button:hover:not(:disabled) {
+        .new-game-btn:hover {
             background: white;
             color: #667eea;
             transform: translateY(-2px);
         }
 
-        .message {
-            font-size: 1.1em;
-            font-weight: bold;
-            margin-bottom: 20px;
-            min-height: 30px;
-        }
-
-        .message.win {
-            color: #4ade80;
-        }
-
-        .message.close {
-            color: #fbbf24;
-        }
-
-        .guesses-section {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 30px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .guesses-title {
-            font-size: 1.1em;
-            font-weight: bold;
-            margin-bottom: 15px;
-            opacity: 0.9;
-        }
-
-        .guess-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .guess-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .guess-color {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            border: 2px solid white;
-            flex-shrink: 0;
-        }
-
-        .guess-info {
-            flex: 1;
-            text-align: left;
-        }
-
-        .guess-hex {
-            font-size: 0.9em;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-            margin-bottom: 3px;
-        }
-
-        .guess-distance {
-            font-size: 0.8em;
-            opacity: 0.8;
-        }
-
         .back-link {
-            display: inline-block;
+            display: block;
+            text-align: center;
             margin-top: 20px;
             color: white;
             text-decoration: none;
@@ -229,19 +251,43 @@
 
         .info-text {
             font-size: 0.9em;
-            opacity: 0.8;
+            opacity: 0.7;
+            text-align: center;
             margin-top: 15px;
-            line-height: 1.5;
+        }
+
+        .empty-row {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+        }
+
+        .empty-tile {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
         }
 
         @media (max-width: 600px) {
             h1 {
-                font-size: 1.8em;
+                font-size: 2em;
             }
 
             .target-color {
-                width: 150px;
-                height: 150px;
+                width: 120px;
+                height: 120px;
+            }
+
+            .guess-row {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .guess-color-box {
+                width: 60px;
+                height: 60px;
             }
 
             .input-group {
@@ -251,23 +297,40 @@
             .guess-btn {
                 width: 100%;
             }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .new-game-btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎨 Colordle</h1>
+        <header>
+            <h1>🎨 Colordle</h1>
+            <p class="subtitle">Guess the hex code of the target color</p>
+        </header>
 
-        <div class="game-area">
-            <div class="target-color-section">
-                <div class="section-label">Guess the Hex Code</div>
+        <div class="game-container">
+            <div class="target-section">
+                <div class="target-label">Target Color</div>
                 <div class="target-color" id="targetColor"></div>
             </div>
 
-            <div class="message" id="message"></div>
+            <div class="status-message" id="message"></div>
+
+            <div class="guesses-grid" id="guessesGrid">
+                <div class="empty-row">
+                    <div class="empty-tile"></div>
+                </div>
+            </div>
 
             <div class="input-section">
-                <div class="input-label">Enter hex code (e.g., #FF5733)</div>
+                <label class="input-label">Enter hex code</label>
                 <div class="input-group">
                     <input type="text" class="hex-input" id="hexInput" placeholder="#000000" maxlength="7">
                     <button class="guess-btn" id="guessBtn" onclick="submitGuess()">Guess</button>
@@ -275,17 +338,12 @@
             </div>
 
             <div class="buttons">
-                <button onclick="newGame()">New Game</button>
+                <button class="new-game-btn" onclick="newGame()">New Game</button>
             </div>
 
             <div class="info-text">
-                Get as close as possible to the target color!
+                Get as close as possible to match the color!
             </div>
-        </div>
-
-        <div class="guesses-section" id="guessesSection" style="display: none;">
-            <div class="guesses-title">Your Guesses</div>
-            <div id="guesses"></div>
         </div>
 
         <a href="/" class="back-link">← Back to Home</a>
@@ -321,13 +379,13 @@
         }
 
         function getClosenessMessage(distance) {
-            if (distance === 0) return '🎉 Perfect!';
-            if (distance < 30) return '🔥 Extremely close!';
-            if (distance < 60) return '🔥 Very close!';
+            if (distance === 0) return '🎉 Perfect Match!';
+            if (distance < 30) return '🔥 Extremely Close!';
+            if (distance < 60) return '🔥 Very Close!';
             if (distance < 100) return '😊 Close';
-            if (distance < 150) return '🤔 Getting warmer';
-            if (distance < 200) return '❄️ Far away';
-            return '❄️ Very far away';
+            if (distance < 150) return '🤔 Getting Warmer';
+            if (distance < 200) return '❄️ Far';
+            return '❄️ Very Far';
         }
 
         function newGame() {
@@ -335,12 +393,11 @@
             guesses = [];
             gameActive = true;
             document.getElementById('message').textContent = '';
-            document.getElementById('message').className = 'message';
+            document.getElementById('message').className = 'status-message';
             document.getElementById('hexInput').value = '';
-            document.getElementById('guessesSection').style.display = 'none';
-            document.getElementById('guesses').innerHTML = '';
             document.getElementById('guessBtn').disabled = false;
             updateTargetColor();
+            renderGuesses();
         }
 
         function updateTargetColor() {
@@ -357,7 +414,7 @@
             }
 
             if (!/^#[0-9A-F]{6}$/.test(hex)) {
-                document.getElementById('message').textContent = 'Invalid hex format! Use #RRGGBB';
+                document.getElementById('message').textContent = 'Invalid format! Use #RRGGBB';
                 return;
             }
 
@@ -365,14 +422,14 @@
             guesses.push({ hex, distance });
 
             if (hex === targetHex) {
-                document.getElementById('message').textContent = '🎉 You Got It! Well Done!';
-                document.getElementById('message').className = 'message win';
+                document.getElementById('message').textContent = '🎉 You Got It!';
+                document.getElementById('message').className = 'status-message win';
                 gameActive = false;
                 document.getElementById('guessBtn').disabled = true;
             } else {
                 const message = getClosenessMessage(distance);
                 document.getElementById('message').textContent = message;
-                document.getElementById('message').className = distance < 100 ? 'message close' : 'message';
+                document.getElementById('message').className = distance < 100 ? 'status-message close' : 'status-message';
             }
 
             document.getElementById('hexInput').value = '';
@@ -380,24 +437,30 @@
         }
 
         function renderGuesses() {
-            const guessesSection = document.getElementById('guessesSection');
-            const guessesContainer = document.getElementById('guesses');
-
+            const grid = document.getElementById('guessesGrid');
+            
             if (guesses.length === 0) {
-                guessesSection.style.display = 'none';
+                grid.innerHTML = '<div class="empty-row"><div class="empty-tile"></div></div>';
                 return;
             }
 
-            guessesSection.style.display = 'block';
-            guessesContainer.innerHTML = guesses.map((g, i) => `
-                <div class="guess-item">
-                    <div class="guess-color" style="background-color: ${g.hex}"></div>
-                    <div class="guess-info">
-                        <div class="guess-hex">${g.hex}</div>
-                        <div class="guess-distance">Distance: ${Math.round(g.distance)} ${i === 0 ? '(latest)' : ''}</div>
+            grid.innerHTML = guesses.map((g, i) => {
+                const maxDistance = Math.sqrt(255*255 + 255*255 + 255*255);
+                const distancePercent = Math.min((g.distance / maxDistance) * 100, 100);
+                
+                return `
+                    <div class="guess-row">
+                        <div class="guess-color-box" style="background-color: ${g.hex}"></div>
+                        <div class="guess-info">
+                            <div class="guess-hex">${g.hex}</div>
+                            <div class="guess-distance">Distance: ${Math.round(g.distance)}</div>
+                            <div class="distance-bar">
+                                <div class="distance-fill" style="width: ${distancePercent}%"></div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            `).reverse().join('');
+                `;
+            }).join('');
         }
 
         document.getElementById('hexInput').addEventListener('keypress', e => {
