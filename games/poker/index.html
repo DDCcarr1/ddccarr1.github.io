@@ -524,7 +524,9 @@
                 let idx = (gameState.currentPlayerIndex + i) % 6;
                 if (players[idx].status === 'active' && players[idx].isPlayer) {
                     playerTurn = true;
+                    enableActionButtons(true);
                     setMessage(`Your turn. Current bet: $${gameState.currentBet}`, 'action');
+                    render();
                     break;
                 }
 
@@ -736,11 +738,34 @@
         }
 
         function enableActionButtons(enable) {
-            document.getElementById('foldBtn').disabled = !enable;
-            document.getElementById('checkBtn').disabled = !enable;
-            document.getElementById('callBtn').disabled = !enable;
-            document.getElementById('raiseBtn').disabled = !enable;
-            document.getElementById('allInBtn').disabled = !enable;
+            if (!enable) {
+                document.getElementById('foldBtn').disabled = true;
+                document.getElementById('checkBtn').disabled = true;
+                document.getElementById('callBtn').disabled = true;
+                document.getElementById('raiseBtn').disabled = true;
+                document.getElementById('allInBtn').disabled = true;
+            } else {
+                let callAmount = gameState.currentBet - players[0].bet;
+                
+                document.getElementById('foldBtn').disabled = false;
+                document.getElementById('allInBtn').disabled = players[0].stack === 0;
+                
+                if (callAmount === 0) {
+                    // No bet to call, can check or raise
+                    document.getElementById('checkBtn').disabled = false;
+                    document.getElementById('callBtn').disabled = true;
+                } else if (callAmount > players[0].stack) {
+                    // Can only go all in
+                    document.getElementById('checkBtn').disabled = true;
+                    document.getElementById('callBtn').disabled = true;
+                } else {
+                    // Can call
+                    document.getElementById('checkBtn').disabled = true;
+                    document.getElementById('callBtn').disabled = false;
+                }
+                
+                document.getElementById('raiseBtn').disabled = false;
+            }
         }
 
         function setMessage(text, className) {
