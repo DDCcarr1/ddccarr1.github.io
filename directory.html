@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDCcarr1 | Directory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .directory {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .directory-item {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .directory-item:last-child {
+            border-bottom: none;
+        }
+
+        .directory-item:hover {
+            background: #f5f5f5;
+        }
+
+        .item-info {
+            flex-grow: 1;
+        }
+
+        .item-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .item-description {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .item-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+            margin-left: 20px;
+        }
+
+        .item-link:hover {
+            opacity: 0.9;
+        }
+
+        .category {
+            margin-bottom: 30px;
+        }
+
+        .category-title {
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            margin-top: 30px;
+            display: inline-block;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .directory-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .item-link {
+                margin-left: 0;
+                margin-top: 10px;
+                width: 100%;
+                text-align: center;
+            }
+
+            .item-description {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Directory</h1>
+            <p class="subtitle">Browse all available pages and content</p>
+        </header>
+
+        <div class="category">
+            <div class="category-title">Games</div>
+            <div class="directory">
+                <div class="directory-item">
+                    <div class="item-info">
+                        <div class="item-name">⭕ Tic Tac Toe</div>
+                        <div class="item-description">Classic 3x3 strategy game. Try to get three in a row before your opponent.</div>
+                    </div>
+                    <a href="/games/tictactoe/" class="item-link">Play</a>
+                </div>
+
+                <div class="directory-item">
+                    <div class="item-info">
+                        <div class="item-name">🎯 2048</div>
+                        <div class="item-description">Slide tiles to combine numbers and reach the 2048 tile!</div>
+                    </div>
+                    <a href="/games/2048/" class="item-link">Play</a>
+                </div>
+
+                <div class="directory-item">
+                    <div class="item-info">
+                        <div class="item-name">📝 Wordle</div>
+                        <div class="item-description">Guess the word in 6 tries. Get hints after each guess.</div>
+                    </div>
+                    <a href="/games/wordle/" class="item-link">Play</a>
+                </div>
+
+                <div class="directory-item">
+                    <div class="item-info">
+                        <div class="item-name">🎴 Blackjack</div>
+                        <div class="item-description">Beat the dealer by getting 21 or closest without going over.</div>
+                    </div>
+                    <a href="/games/blackjack/" class="item-link">Play</a>
+                </div>
+
+                <div class="directory-item">
+                    <div class="item-info">
+                        <div class="item-name">♠️ Poker</div>
+                        <div class="item-description">Texas Hold'em poker against AI opponents. Test your skills!</div>
+                    </div>
+                    <a href="/games/poker/" class="item-link">Play</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="category">
+            <div class="category-title">Pages</div>
+            <div class="directory">
+                <div class="directory-item">
+                    <div class="item-info">
+                        <div class="item-name">🏠 Home</div>
+                        <div class="item-description">Main landing page</div>
+                    </div>
+                    <a href="/" class="item-link">Visit</a>
+                </div>
+
+                <div class="directory-item">
+                    <div class="item-info">
+                        <div class="item-name">📂 Directory</div>
+                        <div class="item-description">This page - browse all available content</div>
+                    </div>
+                    <a href="/directory.html" class="item-link">Visit</a>
+                </div>
+            </div>
+        </div>
+
+        <a href="/" class="back-link">← Back to Home</a>
+    </div>
+</body>
+</html>

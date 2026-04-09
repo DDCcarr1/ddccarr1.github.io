@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDCcarr1 | Wordle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .guesses {
+            margin-bottom: 30px;
+        }
+
+        .guess-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .guess-tile {
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .guess-tile.correct {
+            background: #4ade80;
+            border-color: #4ade80;
+            transform: scale(1.05);
+        }
+
+        .guess-tile.present {
+            background: #fbbf24;
+            border-color: #fbbf24;
+            transform: scale(1.05);
+        }
+
+        .guess-tile.absent {
+            background: #6b7280;
+            border-color: #6b7280;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-box {
+            width: 300px;
+            max-width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            border: 2px solid white;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-align: center;
+            text-transform: uppercase;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+        }
+
+        .input-box::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .guess-btn {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        .guess-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .message {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            min-height: 30px;
+            font-weight: bold;
+        }
+
+        .message.win {
+            color: #4ade80;
+        }
+
+        .message.lose {
+            color: #ef4444;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Wordle</h1>
+
+        <div class="guesses" id="guesses"></div>
+
+        <div class="message" id="message"></div>
+
+        <div class="input-section">
+            <input type="text" class="input-box" id="guessInput" placeholder="Enter guess" maxlength="5">
+        </div>
+
+        <div class="buttons">
+            <button class="guess-btn" onclick="submitGuess()">Guess</button>
+            <button onclick="newGame()">New Game</button>
+        </div>
+
+        <a href="/" class="back-link">← Back to Home</a>
+    </div>
+
+    <script>
+        const WORDS = ['ABOUT', 'ABUSE', 'ACTOR', 'ACUTE', 'ADMIT', 'ADOPT', 'ADULT', 'AFTER', 'AGAIN', 'AGENT',
+            'AGREE', 'AHEAD', 'ALARM', 'ALBUM', 'ALERT', 'ALIEN', 'ALIGN', 'ALIKE', 'ALIVE', 'ALLOW',
+            'ALONE', 'ALONG', 'ALTER', 'AMBER', 'AMEND', 'AMONG', 'ANGER', 'ANGLE', 'ANGRY', 'APART',
+            'APPLE', 'APPLY', 'ARENA', 'ARGUE', 'ARISE', 'ARRAY', 'ARROW', 'ASIDE', 'ASSET', 'AUDIO',
+            'AUDIT', 'AVOID', 'AWAKE', 'AWARD', 'AWARE', 'BADLY', 'BAKER', 'BASES', 'BASIC', 'BASIN',
+            'BEACH', 'BEGAN', 'BEGIN', 'BEING', 'BELOW', 'BENCH', 'BILLY', 'BIRTH', 'BLACK', 'BLADE',
+            'BLAME', 'BLANK', 'BLAST', 'BLEED', 'BLEND', 'BLESS', 'BLIND', 'BLOCK', 'BLOOD', 'BOARD',
+            'BOOST', 'BOOTH', 'BOUND', 'BRAIN', 'BRAND', 'BRASS', 'BRAVE', 'BREAD', 'BREAK', 'BREED',
+            'BRIEF', 'BRING', 'BROAD', 'BROKE', 'BROWN', 'BUILD', 'BUILT', 'BURNT', 'BURST', 'BUYER',
+            'CABLE', 'CALIF', 'CAMEL', 'CANAL', 'CANDY', 'CANON', 'CAPER', 'CARGO', 'CAROL', 'CARRY',
+            'CATCH', 'CAUSE', 'CHAIN', 'CHAIR', 'CHARM', 'CHART', 'CHASE', 'CHEAP', 'CHEAT', 'CHECK',
+            'CHEST', 'CHIEF', 'CHILD', 'CHINA', 'CHOSE', 'CIVIL', 'CLAIM', 'CLASS', 'CLEAN', 'CLEAR',
+            'CLICK', 'CLIMB', 'CLOCK', 'CLOSE', 'CLOTH', 'CLOUD', 'COACH', 'COAST', 'COLON', 'COLOR',
+            'COUCH', 'COULD', 'COUNT', 'COURT', 'COVER', 'CRACK', 'CRAFT', 'CRASH', 'CRAZY', 'CREAM',
+            'CRIME', 'CRISP', 'CROSS', 'CROWD', 'CROWN', 'CRUDE', 'CRUSH', 'CURVE', 'CYCLE', 'DAILY',
+            'DAIRY', 'DANCE', 'DATED', 'DEALT', 'DEATH', 'DEBUT', 'DELAY', 'DENSE', 'DINER', 'DIRTY',
+            'DITCH', 'DIVER', 'DODGE', 'DOING', 'DONOR', 'DOUBT', 'DOZEN', 'DRAFT', 'DRAIN', 'DRANK',
+            'DRAWN', 'DREAM', 'DRESS', 'DRIED', 'DRIFT', 'DRILL', 'DRINK', 'DRIVE', 'DROIT', 'DROVE',
+            'DROWN', 'DRUNK', 'EARLY', 'EARTH', 'EATEN', 'EATER', 'EIGHT', 'EJECT', 'ELBOW', 'ELDER',
+            'ELECT', 'EMAIL', 'EMBED', 'EMBER', 'EMPTY', 'ENEMY', 'ENJOY', 'ENTER', 'ENTRY', 'EQUAL',
+            'ERROR', 'EVENT', 'EVERY', 'EXACT', 'EXCEL', 'EXILE', 'EXIST', 'EXTRA', 'FAITH', 'FALSE',
+            'FAULT', 'FIBER', 'FIELD', 'FIERY', 'FIFTH', 'FIFTY', 'FIGHT', 'FILED', 'FINAL', 'FIRST',
+            'FIXED', 'FLAME', 'FLASH', 'FLEET', 'FLESH', 'FLIER', 'FLOAT', 'FLOOD', 'FLOOR', 'FLOUR',
+            'FLOWN', 'FLUID', 'FLUSH', 'FOLIO', 'FORCE', 'FORGE', 'FORTH', 'FORTY', 'FORUM', 'FOUND',
+            'FRAME', 'FRANK', 'FRAUD', 'FREAK', 'FREED', 'FRESH', 'FRIED', 'FROCK', 'FRONT', 'FROST',
+            'FRUIT', 'FULLY', 'FUNNY', 'FUZZY', 'GAINS', 'GAILY', 'GAMER', 'GAMMA', 'GAVEL', 'GEARS',
+            'GENRE', 'GHOST', 'GIANT', 'GIDDY', 'GIVEN', 'GLAND', 'GLASS', 'GLAZE', 'GLOBE', 'GLOOM',
+            'GLORY', 'GLOVE', 'GOING', 'GRACE', 'GRADE', 'GRAIN', 'GRANT', 'GRAPE', 'GRAPH', 'GRASP',
+            'GRASS', 'GRAVE', 'GRAZE', 'GREAT', 'GREED', 'GREEN', 'GREET', 'GRIEF', 'GRILL', 'GRIME',
+            'GRIND', 'GROAN', 'GROOM', 'GROUP', 'GROVE', 'GROWL', 'GROWN', 'GUARD', 'GUESS', 'GUEST',
+            'GUIDE', 'GUILD', 'GUILT', 'GULLY', 'HABIT', 'HAPPY', 'HARDY', 'HARSH', 'HASTE', 'HASTY',
+            'HATED', 'HAUNT', 'HAVEN', 'HAVOC', 'HEADS', 'HEARD', 'HEART', 'HEATH', 'HEAVY', 'HEDGE',
+            'HEELS', 'HEIST', 'HELLO', 'HELPS', 'HERBS', 'HERDS', 'HERON', 'HILLS', 'HINGE', 'HINTS',
+            'HOBBY', 'HOLDS', 'HOLES', 'HOLLY', 'HOMES', 'HONEY', 'HONOR', 'HOOKS', 'HOOPS', 'HOPES',
+            'HORSE', 'HOUND', 'HOUSE', 'HOVER', 'HUMAN', 'HUMOR', 'HURRY', 'HURTS', 'IDEAL', 'IDEAS',
+            'IDIOM', 'IMAGE', 'IMPLY', 'INDEX', 'INFER', 'INNER', 'INPUT', 'INTRO', 'IRATE', 'IRONY'];
+
+        let targetWord, guesses = [], gameOver = false;
+
+        function newGame() {
+            targetWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+            guesses = [];
+            gameOver = false;
+            document.getElementById('message').textContent = '';
+            document.getElementById('guessInput').value = '';
+            renderBoard();
+        }
+
+        function submitGuess() {
+            if (gameOver || guesses.length >= 6) return;
+
+            let guess = document.getElementById('guessInput').value.toUpperCase();
+            if (guess.length !== 5 || !WORDS.includes(guess)) {
+                document.getElementById('message').textContent = 'Invalid word!';
+                return;
+            }
+
+            guesses.push(guess);
+            document.getElementById('guessInput').value = '';
+
+            if (guess === targetWord) {
+                document.getElementById('message').textContent = '🎉 You Won!';
+                document.getElementById('message').className = 'message win';
+                gameOver = true;
+            } else if (guesses.length >= 6) {
+                document.getElementById('message').textContent = `Game Over! The word was ${targetWord}`;
+                document.getElementById('message').className = 'message lose';
+                gameOver = true;
+            }
+
+            renderBoard();
+        }
+
+        function renderBoard() {
+            let html = '';
+            for (let i = 0; i < 6; i++) {
+                html += '<div class="guess-row">';
+                for (let j = 0; j < 5; j++) {
+                    let letter = guesses[i]?.[j] || '';
+                    let className = 'guess-tile';
+                    if (letter) {
+                        if (letter === targetWord[j]) {
+                            className += ' correct';
+                        } else if (targetWord.includes(letter)) {
+                            className += ' present';
+                        } else {
+                            className += ' absent';
+                        }
+                    }
+                    html += `<div class="${className}">${letter}</div>`;
+                }
+                html += '</div>';
+            }
+            document.getElementById('guesses').innerHTML = html;
+        }
+
+        document.getElementById('guessInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') submitGuess();
+        });
+
+        newGame();
+    </script>
+</body>
+</html>
