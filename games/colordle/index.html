@@ -440,7 +440,7 @@
             }
 
             if (!/^#[0-9A-F]{6}$/.test(hex)) {
-                document.getElementById('message').textContent = 'Invalid format! Use #RRGGBB';
+                document.getElementById('message').textContent = 'Invalid format. Use #RRGGBB.';
                 return;
             }
 
@@ -448,7 +448,7 @@
             guesses.push({ hex, distance });
 
             if (hex === targetHex) {
-                document.getElementById('message').textContent = '🎉 You Got It!';
+                document.getElementById('message').textContent = '🎉 You Got It.';
                 document.getElementById('message').className = 'status-message win';
                 gameActive = false;
                 document.getElementById('guessBtn').disabled = true;

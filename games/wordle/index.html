@@ -252,12 +252,12 @@
 
             let guess = document.getElementById('guessInput').value.toUpperCase();
             if (guess.length !== 5) {
-                document.getElementById('message').textContent = 'Must be 5 letters!';
+                document.getElementById('message').textContent = 'Must be 5 letters.';
                 return;
             }
 
             if (!validWords.includes(guess)) {
-                document.getElementById('message').textContent = 'Invalid word!';
+                document.getElementById('message').textContent = 'Invalid word.';
                 return;
             }
 
@@ -265,11 +265,11 @@
             document.getElementById('guessInput').value = '';
 
             if (guess === targetWord) {
-                document.getElementById('message').textContent = '🎉 You Won!';
+                document.getElementById('message').textContent = '🎉 You Won.';
                 document.getElementById('message').className = 'message win';
                 gameOver = true;
             } else if (guesses.length >= 6) {
-                document.getElementById('message').textContent = `Game Over! The word was ${targetWord}`;
+                document.getElementById('message').textContent = `Game Over. The word was ${targetWord}.`;
                 document.getElementById('message').className = 'message lose';
                 gameOver = true;
             }
