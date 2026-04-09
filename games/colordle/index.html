@@ -465,15 +465,37 @@
         function getHexFeedback(guessHex, targetHex) {
             const guessChars = guessHex.substring(1).toUpperCase().split('');
             const targetChars = targetHex.substring(1).toUpperCase().split('');
+            const result = new Array(guessChars.length);
+            const targetCharCounts = {};
             
-            return guessChars.map((char, index) => {
+            // Count available characters in target
+            targetChars.forEach(char => {
+                targetCharCounts[char] = (targetCharCounts[char] || 0) + 1;
+            });
+            
+            // First pass: mark correct positions
+            guessChars.forEach((char, index) => {
                 if (char === targetChars[index]) {
-                    return `<span class="hex-char correct">${char}</span>`;
-                } else if (targetChars.includes(char)) {
-                    return `<span class="hex-char present">${char}</span>`;
-                } else {
-                    return `<span class="hex-char absent">${char}</span>`;
+                    result[index] = 'correct';
+                    targetCharCounts[char]--;
                 }
+            });
+            
+            // Second pass: mark present/absent
+            guessChars.forEach((char, index) => {
+                if (result[index] === undefined) {
+                    if (targetCharCounts[char] > 0) {
+                        result[index] = 'present';
+                        targetCharCounts[char]--;
+                    } else {
+                        result[index] = 'absent';
+                    }
+                }
+            });
+            
+            return result.map((status, index) => {
+                const char = guessChars[index];
+                return `<span class="hex-char ${status}">${char}</span>`;
             }).join('');
         }
 
