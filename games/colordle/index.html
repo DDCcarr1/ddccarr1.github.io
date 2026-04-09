@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDCcarr1 | Colordle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-area {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .target-color-section {
+            margin-bottom: 30px;
+        }
+
+        .section-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .target-color {
+            width: 200px;
+            height: 200px;
+            border-radius: 15px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 3px solid white;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            font-size: 0.95em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .hex-input {
+            flex: 1;
+            padding: 12px;
+            font-size: 1.1em;
+            border: 2px solid white;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-align: center;
+            text-transform: uppercase;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+        }
+
+        .hex-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .guess-btn {
+            padding: 12px 25px;
+            font-size: 1em;
+            border: 2px solid white;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .guess-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .guess-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 0.95em;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        button:hover:not(:disabled) {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .message {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 30px;
+        }
+
+        .message.win {
+            color: #4ade80;
+        }
+
+        .message.close {
+            color: #fbbf24;
+        }
+
+        .guesses-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .guesses-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .guess-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .guess-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .guess-color {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            border: 2px solid white;
+            flex-shrink: 0;
+        }
+
+        .guess-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .guess-hex {
+            font-size: 0.9em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 3px;
+        }
+
+        .guess-distance {
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        .info-text {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 15px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .target-color {
+                width: 150px;
+                height: 150px;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .guess-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Colordle</h1>
+
+        <div class="game-area">
+            <div class="target-color-section">
+                <div class="section-label">Guess the Hex Code</div>
+                <div class="target-color" id="targetColor"></div>
+            </div>
+
+            <div class="message" id="message"></div>
+
+            <div class="input-section">
+                <div class="input-label">Enter hex code (e.g., #FF5733)</div>
+                <div class="input-group">
+                    <input type="text" class="hex-input" id="hexInput" placeholder="#000000" maxlength="7">
+                    <button class="guess-btn" id="guessBtn" onclick="submitGuess()">Guess</button>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button onclick="newGame()">New Game</button>
+            </div>
+
+            <div class="info-text">
+                Get as close as possible to the target color!
+            </div>
+        </div>
+
+        <div class="guesses-section" id="guessesSection" style="display: none;">
+            <div class="guesses-title">Your Guesses</div>
+            <div id="guesses"></div>
+        </div>
+
+        <a href="/" class="back-link">← Back to Home</a>
+    </div>
+
+    <script>
+        let targetHex, guesses = [], gameActive = true;
+
+        function randomColor() {
+            return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0').toUpperCase();
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function colorDistance(hex1, hex2) {
+            const rgb1 = hexToRgb(hex1);
+            const rgb2 = hexToRgb(hex2);
+
+            if (!rgb1 || !rgb2) return Infinity;
+
+            const rDiff = rgb1.r - rgb2.r;
+            const gDiff = rgb1.g - rgb2.g;
+            const bDiff = rgb1.b - rgb2.b;
+
+            return Math.sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
+        }
+
+        function getClosenessMessage(distance) {
+            if (distance === 0) return '🎉 Perfect!';
+            if (distance < 30) return '🔥 Extremely close!';
+            if (distance < 60) return '🔥 Very close!';
+            if (distance < 100) return '😊 Close';
+            if (distance < 150) return '🤔 Getting warmer';
+            if (distance < 200) return '❄️ Far away';
+            return '❄️ Very far away';
+        }
+
+        function newGame() {
+            targetHex = randomColor();
+            guesses = [];
+            gameActive = true;
+            document.getElementById('message').textContent = '';
+            document.getElementById('message').className = 'message';
+            document.getElementById('hexInput').value = '';
+            document.getElementById('guessesSection').style.display = 'none';
+            document.getElementById('guesses').innerHTML = '';
+            document.getElementById('guessBtn').disabled = false;
+            updateTargetColor();
+        }
+
+        function updateTargetColor() {
+            document.getElementById('targetColor').style.backgroundColor = targetHex;
+        }
+
+        function submitGuess() {
+            if (!gameActive) return;
+
+            let hex = document.getElementById('hexInput').value.toUpperCase();
+
+            if (!hex.startsWith('#')) {
+                hex = '#' + hex;
+            }
+
+            if (!/^#[0-9A-F]{6}$/.test(hex)) {
+                document.getElementById('message').textContent = 'Invalid hex format! Use #RRGGBB';
+                return;
+            }
+
+            const distance = colorDistance(hex, targetHex);
+            guesses.push({ hex, distance });
+
+            if (hex === targetHex) {
+                document.getElementById('message').textContent = '🎉 You Got It! Well Done!';
+                document.getElementById('message').className = 'message win';
+                gameActive = false;
+                document.getElementById('guessBtn').disabled = true;
+            } else {
+                const message = getClosenessMessage(distance);
+                document.getElementById('message').textContent = message;
+                document.getElementById('message').className = distance < 100 ? 'message close' : 'message';
+            }
+
+            document.getElementById('hexInput').value = '';
+            renderGuesses();
+        }
+
+        function renderGuesses() {
+            const guessesSection = document.getElementById('guessesSection');
+            const guessesContainer = document.getElementById('guesses');
+
+            if (guesses.length === 0) {
+                guessesSection.style.display = 'none';
+                return;
+            }
+
+            guessesSection.style.display = 'block';
+            guessesContainer.innerHTML = guesses.map((g, i) => `
+                <div class="guess-item">
+                    <div class="guess-color" style="background-color: ${g.hex}"></div>
+                    <div class="guess-info">
+                        <div class="guess-hex">${g.hex}</div>
+                        <div class="guess-distance">Distance: ${Math.round(g.distance)} ${i === 0 ? '(latest)' : ''}</div>
+                    </div>
+                </div>
+            `).reverse().join('');
+        }
+
+        document.getElementById('hexInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') submitGuess();
+        });
+
+        newGame();
+    </script>
+</body>
+</html>
