@@ -126,6 +126,32 @@
             font-weight: bold;
             font-family: 'Courier New', monospace;
             margin-bottom: 5px;
+            letter-spacing: 3px;
+        }
+
+        .hex-char {
+            display: inline-block;
+            width: 20px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 4px;
+            margin: 0 1px;
+        }
+
+        .hex-char.correct {
+            background-color: #4ade80;
+            color: white;
+        }
+
+        .hex-char.present {
+            background-color: #fbbf24;
+            color: #333;
+        }
+
+        .hex-char.absent {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
         }
 
         .guess-distance {
@@ -436,6 +462,21 @@
             renderGuesses();
         }
 
+        function getHexFeedback(guessHex, targetHex) {
+            const guessChars = guessHex.substring(1).toUpperCase().split('');
+            const targetChars = targetHex.substring(1).toUpperCase().split('');
+            
+            return guessChars.map((char, index) => {
+                if (char === targetChars[index]) {
+                    return `<span class="hex-char correct">${char}</span>`;
+                } else if (targetChars.includes(char)) {
+                    return `<span class="hex-char present">${char}</span>`;
+                } else {
+                    return `<span class="hex-char absent">${char}</span>`;
+                }
+            }).join('');
+        }
+
         function renderGuesses() {
             const grid = document.getElementById('guessesGrid');
             
@@ -447,12 +488,13 @@
             grid.innerHTML = guesses.map((g, i) => {
                 const maxDistance = Math.sqrt(255*255 + 255*255 + 255*255);
                 const distancePercent = Math.min((g.distance / maxDistance) * 100, 100);
+                const hexFeedback = getHexFeedback(g.hex, targetHex);
                 
                 return `
                     <div class="guess-row">
                         <div class="guess-color-box" style="background-color: ${g.hex}"></div>
                         <div class="guess-info">
-                            <div class="guess-hex">${g.hex}</div>
+                            <div class="guess-hex">#${hexFeedback}</div>
                             <div class="guess-distance">Distance: ${Math.round(g.distance)}</div>
                             <div class="distance-bar">
                                 <div class="distance-fill" style="width: ${distancePercent}%"></div>
