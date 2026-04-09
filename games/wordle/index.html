@@ -281,23 +281,51 @@
             let html = '';
             for (let i = 0; i < 6; i++) {
                 html += '<div class="guess-row">';
+                const guess = guesses[i];
+                const feedback = guess ? getLetterFeedback(guess, targetWord) : [];
                 for (let j = 0; j < 5; j++) {
-                    let letter = guesses[i]?.[j] || '';
+                    let letter = guess?.[j] || '';
                     let className = 'guess-tile';
                     if (letter) {
-                        if (letter === targetWord[j]) {
-                            className += ' correct';
-                        } else if (targetWord.includes(letter)) {
-                            className += ' present';
-                        } else {
-                            className += ' absent';
-                        }
+                        className += ' ' + (feedback[j] || 'absent');
                     }
                     html += `<div class="${className}">${letter}</div>`;
                 }
                 html += '</div>';
             }
             document.getElementById('guesses').innerHTML = html;
+        }
+        
+        function getLetterFeedback(guess, target) {
+            const result = new Array(guess.length);
+            const targetCounts = {};
+            
+            // Count available letters in target
+            for (let char of target) {
+                targetCounts[char] = (targetCounts[char] || 0) + 1;
+            }
+            
+            // First pass: mark correct positions
+            for (let i = 0; i < guess.length; i++) {
+                if (guess[i] === target[i]) {
+                    result[i] = 'correct';
+                    targetCounts[guess[i]]--;
+                }
+            }
+            
+            // Second pass: mark present/absent
+            for (let i = 0; i < guess.length; i++) {
+                if (result[i] === undefined) {
+                    if (targetCounts[guess[i]] > 0) {
+                        result[i] = 'present';
+                        targetCounts[guess[i]]--;
+                    } else {
+                        result[i] = 'absent';
+                    }
+                }
+            }
+            
+            return result;
         }
 
         document.getElementById('guessInput').addEventListener('keypress', e => {

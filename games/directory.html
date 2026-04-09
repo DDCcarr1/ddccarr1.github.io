@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDCcarr1 | Games Directory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 300px;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .game-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .game-description {
+            font-size: 0.95em;
+            opacity: 0.85;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .play-button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+        }
+
+        .game-card:hover .play-button {
+            background: rgba(255, 255, 255, 0.9);
+            transform: scale(1.05);
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 30px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+            font-size: 1.1em;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .game-icon {
+                font-size: 2.5em;
+            }
+
+            .game-title {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Home</a>
+
+        <header>
+            <h1>🎮 Games</h1>
+            <p class="subtitle">Choose a game to play</p>
+        </header>
+
+        <div class="games-grid">
+            <a href="/games/2048" class="game-card">
+                <div>
+                    <div class="game-icon">🔢</div>
+                    <div class="game-title">2048</div>
+                    <div class="game-description">Combine tiles to reach 2048. Slide tiles in any direction to merge matching numbers and reach the ultimate goal!</div>
+                </div>
+                <div class="play-button">Play Game</div>
+            </a>
+
+            <a href="/games/wordle" class="game-card">
+                <div>
+                    <div class="game-icon">📝</div>
+                    <div class="game-title">Wordle</div>
+                    <div class="game-description">Guess the word in 6 tries. Get hints with color-coded feedback for each guess.</div>
+                </div>
+                <div class="play-button">Play Game</div>
+            </a>
+
+            <a href="/games/colordle" class="game-card">
+                <div>
+                    <div class="game-icon">🎨</div>
+                    <div class="game-title">Colordle</div>
+                    <div class="game-description">Guess the hex code of the target color. Get as close as possible to match the perfect color!</div>
+                </div>
+                <div class="play-button">Play Game</div>
+            </a>
+
+            <a href="/games/tictactoe" class="game-card">
+                <div>
+                    <div class="game-icon">⭕</div>
+                    <div class="game-title">Tic Tac Toe</div>
+                    <div class="game-description">Classic strategy game. Play against the computer and try to get three in a row!</div>
+                </div>
+                <div class="play-button">Play Game</div>
+            </a>
+
+            <a href="/games/blackjack" class="game-card">
+                <div>
+                    <div class="game-icon">🎴</div>
+                    <div class="game-title">Blackjack</div>
+                    <div class="game-description">Beat the dealer by getting 21 or closer without going over. Classic card game action!</div>
+                </div>
+                <div class="play-button">Play Game</div>
+            </a>
+
+            <a href="/games/poker" class="game-card">
+                <div>
+                    <div class="game-icon">♠️</div>
+                    <div class="game-title">Poker</div>
+                    <div class="game-description">Test your poker skills. Form the best hand and outsmart your opponents!</div>
+                </div>
+                <div class="play-button">Play Game</div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
