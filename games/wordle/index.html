@@ -184,47 +184,62 @@
     </div>
 
     <script>
-        const WORDS = ['ABOUT', 'ABUSE', 'ACTOR', 'ACUTE', 'ADMIT', 'ADOPT', 'ADULT', 'AFTER', 'AGAIN', 'AGENT',
-            'AGREE', 'AHEAD', 'ALARM', 'ALBUM', 'ALERT', 'ALIEN', 'ALIGN', 'ALIKE', 'ALIVE', 'ALLOW',
-            'ALONE', 'ALONG', 'ALTER', 'AMBER', 'AMEND', 'AMONG', 'ANGER', 'ANGLE', 'ANGRY', 'APART',
-            'APPLE', 'APPLY', 'ARENA', 'ARGUE', 'ARISE', 'ARRAY', 'ARROW', 'ASIDE', 'ASSET', 'AUDIO',
-            'AUDIT', 'AVOID', 'AWAKE', 'AWARD', 'AWARE', 'BADLY', 'BAKER', 'BASES', 'BASIC', 'BASIN',
-            'BEACH', 'BEGAN', 'BEGIN', 'BEING', 'BELOW', 'BENCH', 'BILLY', 'BIRTH', 'BLACK', 'BLADE',
-            'BLAME', 'BLANK', 'BLAST', 'BLEED', 'BLEND', 'BLESS', 'BLIND', 'BLOCK', 'BLOOD', 'BOARD',
-            'BOOST', 'BOOTH', 'BOUND', 'BRAIN', 'BRAND', 'BRASS', 'BRAVE', 'BREAD', 'BREAK', 'BREED',
-            'BRIEF', 'BRING', 'BROAD', 'BROKE', 'BROWN', 'BUILD', 'BUILT', 'BURNT', 'BURST', 'BUYER',
-            'CABLE', 'CALIF', 'CAMEL', 'CANAL', 'CANDY', 'CANON', 'CAPER', 'CARGO', 'CAROL', 'CARRY',
-            'CATCH', 'CAUSE', 'CHAIN', 'CHAIR', 'CHARM', 'CHART', 'CHASE', 'CHEAP', 'CHEAT', 'CHECK',
-            'CHEST', 'CHIEF', 'CHILD', 'CHINA', 'CHOSE', 'CIVIL', 'CLAIM', 'CLASS', 'CLEAN', 'CLEAR',
-            'CLICK', 'CLIMB', 'CLOCK', 'CLOSE', 'CLOTH', 'CLOUD', 'COACH', 'COAST', 'COLON', 'COLOR',
-            'COUCH', 'COULD', 'COUNT', 'COURT', 'COVER', 'CRACK', 'CRAFT', 'CRASH', 'CRAZY', 'CREAM',
-            'CRIME', 'CRISP', 'CROSS', 'CROWD', 'CROWN', 'CRUDE', 'CRUSH', 'CURVE', 'CYCLE', 'DAILY',
-            'DAIRY', 'DANCE', 'DATED', 'DEALT', 'DEATH', 'DEBUT', 'DELAY', 'DENSE', 'DINER', 'DIRTY',
-            'DITCH', 'DIVER', 'DODGE', 'DOING', 'DONOR', 'DOUBT', 'DOZEN', 'DRAFT', 'DRAIN', 'DRANK',
-            'DRAWN', 'DREAM', 'DRESS', 'DRIED', 'DRIFT', 'DRILL', 'DRINK', 'DRIVE', 'DROIT', 'DROVE',
-            'DROWN', 'DRUNK', 'EARLY', 'EARTH', 'EATEN', 'EATER', 'EIGHT', 'EJECT', 'ELBOW', 'ELDER',
-            'ELECT', 'EMAIL', 'EMBED', 'EMBER', 'EMPTY', 'ENEMY', 'ENJOY', 'ENTER', 'ENTRY', 'EQUAL',
-            'ERROR', 'EVENT', 'EVERY', 'EXACT', 'EXCEL', 'EXILE', 'EXIST', 'EXTRA', 'FAITH', 'FALSE',
-            'FAULT', 'FIBER', 'FIELD', 'FIERY', 'FIFTH', 'FIFTY', 'FIGHT', 'FILED', 'FINAL', 'FIRST',
-            'FIXED', 'FLAME', 'FLASH', 'FLEET', 'FLESH', 'FLIER', 'FLOAT', 'FLOOD', 'FLOOR', 'FLOUR',
-            'FLOWN', 'FLUID', 'FLUSH', 'FOLIO', 'FORCE', 'FORGE', 'FORTH', 'FORTY', 'FORUM', 'FOUND',
-            'FRAME', 'FRANK', 'FRAUD', 'FREAK', 'FREED', 'FRESH', 'FRIED', 'FROCK', 'FRONT', 'FROST',
-            'FRUIT', 'FULLY', 'FUNNY', 'FUZZY', 'GAINS', 'GAILY', 'GAMER', 'GAMMA', 'GAVEL', 'GEARS',
-            'GENRE', 'GHOST', 'GIANT', 'GIDDY', 'GIVEN', 'GLAND', 'GLASS', 'GLAZE', 'GLOBE', 'GLOOM',
-            'GLORY', 'GLOVE', 'GOING', 'GRACE', 'GRADE', 'GRAIN', 'GRANT', 'GRAPE', 'GRAPH', 'GRASP',
-            'GRASS', 'GRAVE', 'GRAZE', 'GREAT', 'GREED', 'GREEN', 'GREET', 'GRIEF', 'GRILL', 'GRIME',
-            'GRIND', 'GROAN', 'GROOM', 'GROUP', 'GROVE', 'GROWL', 'GROWN', 'GUARD', 'GUESS', 'GUEST',
-            'GUIDE', 'GUILD', 'GUILT', 'GULLY', 'HABIT', 'HAPPY', 'HARDY', 'HARSH', 'HASTE', 'HASTY',
-            'HATED', 'HAUNT', 'HAVEN', 'HAVOC', 'HEADS', 'HEARD', 'HEART', 'HEATH', 'HEAVY', 'HEDGE',
-            'HEELS', 'HEIST', 'HELLO', 'HELPS', 'HERBS', 'HERDS', 'HERON', 'HILLS', 'HINGE', 'HINTS',
-            'HOBBY', 'HOLDS', 'HOLES', 'HOLLY', 'HOMES', 'HONEY', 'HONOR', 'HOOKS', 'HOOPS', 'HOPES',
-            'HORSE', 'HOUND', 'HOUSE', 'HOVER', 'HUMAN', 'HUMOR', 'HURRY', 'HURTS', 'IDEAL', 'IDEAS',
-            'IDIOM', 'IMAGE', 'IMPLY', 'INDEX', 'INFER', 'INNER', 'INPUT', 'INTRO', 'IRATE', 'IRONY'];
-
+        let validWords = [];
         let targetWord, guesses = [], gameOver = false;
 
+        async function loadWords() {
+            try {
+                const response = await fetch('https://random-word-api.herokuapp.com/all');
+                const allWords = await response.json();
+                validWords = allWords.filter(w => w.length === 5).map(w => w.toUpperCase());
+                if (validWords.length === 0) {
+                    throw new Error('No 5-letter words found');
+                }
+            } catch (error) {
+                console.log('API failed, using fallback words');
+                validWords = ['ABOUT', 'ABUSE', 'ACTOR', 'ACUTE', 'ADMIT', 'ADOPT', 'ADULT', 'AFTER', 'AGAIN', 'AGENT',
+                    'AGREE', 'AHEAD', 'ALARM', 'ALBUM', 'ALERT', 'ALIEN', 'ALIGN', 'ALIKE', 'ALIVE', 'ALLOW',
+                    'ALONE', 'ALONG', 'ALTER', 'AMBER', 'AMEND', 'AMONG', 'ANGER', 'ANGLE', 'ANGRY', 'APART',
+                    'APPLE', 'APPLY', 'ARENA', 'ARGUE', 'ARISE', 'ARRAY', 'ARROW', 'ASIDE', 'ASSET', 'AUDIO',
+                    'AUDIT', 'AVOID', 'AWAKE', 'AWARD', 'AWARE', 'BADLY', 'BAKER', 'BASES', 'BASIC', 'BASIN',
+                    'BEACH', 'BEGAN', 'BEGIN', 'BEING', 'BELOW', 'BENCH', 'BILLY', 'BIRTH', 'BLACK', 'BLADE',
+                    'BLAME', 'BLANK', 'BLAST', 'BLEED', 'BLEND', 'BLESS', 'BLIND', 'BLOCK', 'BLOOD', 'BOARD',
+                    'BOOST', 'BOOTH', 'BOUND', 'BRAIN', 'BRAND', 'BRASS', 'BRAVE', 'BREAD', 'BREAK', 'BREED',
+                    'BRIEF', 'BRING', 'BROAD', 'BROKE', 'BROWN', 'BUILD', 'BUILT', 'BURNT', 'BURST', 'BUYER',
+                    'CABLE', 'CALIF', 'CAMEL', 'CANAL', 'CANDY', 'CANON', 'CAPER', 'CARGO', 'CAROL', 'CARRY',
+                    'CATCH', 'CAUSE', 'CHAIN', 'CHAIR', 'CHARM', 'CHART', 'CHASE', 'CHEAP', 'CHEAT', 'CHECK',
+                    'CHEST', 'CHIEF', 'CHILD', 'CHINA', 'CHOSE', 'CIVIL', 'CLAIM', 'CLASS', 'CLEAN', 'CLEAR',
+                    'CLICK', 'CLIMB', 'CLOCK', 'CLOSE', 'CLOTH', 'CLOUD', 'COACH', 'COAST', 'COLON', 'COLOR',
+                    'COUCH', 'COULD', 'COUNT', 'COURT', 'COVER', 'CRACK', 'CRAFT', 'CRASH', 'CRAZY', 'CREAM',
+                    'CRIME', 'CRISP', 'CROSS', 'CROWD', 'CROWN', 'CRUDE', 'CRUSH', 'CURVE', 'CYCLE', 'DAILY',
+                    'DAIRY', 'DANCE', 'DATED', 'DEALT', 'DEATH', 'DEBUT', 'DELAY', 'DENSE', 'DINER', 'DIRTY',
+                    'DITCH', 'DIVER', 'DODGE', 'DOING', 'DONOR', 'DOUBT', 'DOZEN', 'DRAFT', 'DRAIN', 'DRANK',
+                    'DRAWN', 'DREAM', 'DRESS', 'DRIED', 'DRIFT', 'DRILL', 'DRINK', 'DRIVE', 'DROIT', 'DROVE',
+                    'DROWN', 'DRUNK', 'EARLY', 'EARTH', 'EATEN', 'EATER', 'EIGHT', 'EJECT', 'ELBOW', 'ELDER',
+                    'ELECT', 'EMAIL', 'EMBED', 'EMBER', 'EMPTY', 'ENEMY', 'ENJOY', 'ENTER', 'ENTRY', 'EQUAL',
+                    'ERROR', 'EVENT', 'EVERY', 'EXACT', 'EXCEL', 'EXILE', 'EXIST', 'EXTRA', 'FAITH', 'FALSE',
+                    'FAULT', 'FIBER', 'FIELD', 'FIERY', 'FIFTH', 'FIFTY', 'FIGHT', 'FILED', 'FINAL', 'FIRST',
+                    'FIXED', 'FLAME', 'FLASH', 'FLEET', 'FLESH', 'FLIER', 'FLOAT', 'FLOOD', 'FLOOR', 'FLOUR',
+                    'FLOWN', 'FLUID', 'FLUSH', 'FOLIO', 'FORCE', 'FORGE', 'FORTH', 'FORTY', 'FORUM', 'FOUND',
+                    'FRAME', 'FRANK', 'FRAUD', 'FREAK', 'FREED', 'FRESH', 'FRIED', 'FROCK', 'FRONT', 'FROST',
+                    'FRUIT', 'FULLY', 'FUNNY', 'FUZZY', 'GAINS', 'GAILY', 'GAMER', 'GAMMA', 'GAVEL', 'GEARS',
+                    'GENRE', 'GHOST', 'GIANT', 'GIDDY', 'GIVEN', 'GLAND', 'GLASS', 'GLAZE', 'GLOBE', 'GLOOM',
+                    'GLORY', 'GLOVE', 'GOING', 'GRACE', 'GRADE', 'GRAIN', 'GRANT', 'GRAPE', 'GRAPH', 'GRASP',
+                    'GRASS', 'GRAVE', 'GRAZE', 'GREAT', 'GREED', 'GREEN', 'GREET', 'GRIEF', 'GRILL', 'GRIME',
+                    'GRIND', 'GROAN', 'GROOM', 'GROUP', 'GROVE', 'GROWL', 'GROWN', 'GUARD', 'GUESS', 'GUEST',
+                    'GUIDE', 'GUILD', 'GUILT', 'GULLY', 'HABIT', 'HAPPY', 'HARDY', 'HARSH', 'HASTE', 'HASTY',
+                    'HATED', 'HAUNT', 'HAVEN', 'HAVOC', 'HEADS', 'HEARD', 'HEART', 'HEATH', 'HEAVY', 'HEDGE',
+                    'HEELS', 'HEIST', 'HELLO', 'HELPS', 'HERBS', 'HERDS', 'HERON', 'HILLS', 'HINGE', 'HINTS',
+                    'HOBBY', 'HOLDS', 'HOLES', 'HOLLY', 'HOMES', 'HONEY', 'HONOR', 'HOOKS', 'HOOPS', 'HOPES',
+                    'HORSE', 'HOUND', 'HOUSE', 'HOVER', 'HUMAN', 'HUMOR', 'HURRY', 'HURTS', 'IDEAL', 'IDEAS',
+                    'IDIOM', 'IMAGE', 'IMPLY', 'INDEX', 'INFER', 'INNER', 'INPUT', 'INTRO', 'IRATE', 'IRONY',
+                    'CRANE', 'TOILS', 'SOILS', 'ROILS', 'COILS', 'BOILS', 'FOILS'];
+            }
+            newGame();
+        }
+
         function newGame() {
-            targetWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+            targetWord = validWords[Math.floor(Math.random() * validWords.length)];
             guesses = [];
             gameOver = false;
             document.getElementById('message').textContent = '';
@@ -236,7 +251,12 @@
             if (gameOver || guesses.length >= 6) return;
 
             let guess = document.getElementById('guessInput').value.toUpperCase();
-            if (guess.length !== 5 || !WORDS.includes(guess)) {
+            if (guess.length !== 5) {
+                document.getElementById('message').textContent = 'Must be 5 letters!';
+                return;
+            }
+
+            if (!validWords.includes(guess)) {
                 document.getElementById('message').textContent = 'Invalid word!';
                 return;
             }
@@ -284,7 +304,7 @@
             if (e.key === 'Enter') submitGuess();
         });
 
-        newGame();
+        loadWords();
     </script>
 </body>
 </html>
