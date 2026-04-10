@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>DDCcarr1 | Solitaire</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin: 0;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        #navbar-container {
+            flex-shrink: 0;
+        }
+
+        #footer-container {
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+
+        .container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 10px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-wrapper {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 500px;
+            overflow-x: auto;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(7, 60px);
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .slot {
+            width: 60px;
+            height: 85px;
+            background: rgba(76, 175, 80, 0.3);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
+            font-size: 2em;
+        }
+
+        .slot:hover {
+            background: rgba(76, 175, 80, 0.5);
+        }
+
+        .slot.card {
+            background: white;
+            color: #1a472a;
+            border: 2px solid white;
+            font-weight: bold;
+            cursor: grab;
+        }
+
+        .slot.card:active {
+            cursor: grabbing;
+        }
+
+        .foundation {
+            display: grid;
+            grid-template-columns: repeat(4, 60px);
+            gap: 8px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .pile {
+            width: 60px;
+            height: 85px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            opacity: 0.6;
+        }
+
+        .info-bar {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: white;
+            color: #1a472a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .message {
+            font-size: 1.2em;
+            margin-top: 15px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 10px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+            font-size: 1em;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.6em;
+            }
+
+            .slot {
+                width: 50px;
+                height: 70px;
+                font-size: 1.5em;
+            }
+
+            .board {
+                grid-template-columns: repeat(7, 50px);
+                gap: 6px;
+            }
+
+            .foundation {
+                grid-template-columns: repeat(4, 50px);
+                gap: 6px;
+            }
+
+            button {
+                padding: 8px 16px;
+                font-size: 0.85em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.3em;
+                margin-bottom: 10px;
+            }
+
+            .slot {
+                width: 40px;
+                height: 55px;
+                font-size: 1.2em;
+            }
+
+            .board {
+                grid-template-columns: repeat(7, 40px);
+                gap: 4px;
+            }
+
+            .foundation {
+                grid-template-columns: repeat(4, 40px);
+                gap: 4px;
+            }
+
+            .game-wrapper {
+                padding: 10px;
+            }
+
+            button {
+                padding: 6px 12px;
+                font-size: 0.75em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <div class="container">
+        <a href="/games" class="back-link">← Back to Games</a>
+        <h1>♠️ Solitaire</h1>
+        
+        <div class="info-bar">
+            <div class="info-item">Moves: <span id="moves">0</span></div>
+            <div class="info-item">Score: <span id="score">0</span></div>
+        </div>
+
+        <div class="game-wrapper">
+            <div class="board" id="board"></div>
+            <div class="foundation" id="foundation"></div>
+        </div>
+
+        <div class="controls">
+            <button onclick="newGame()">New Game</button>
+            <button onclick="undo()">Undo</button>
+        </div>
+
+        <div class="message" id="message"></div>
+        <p style="opacity: 0.8; font-size: 0.9em; margin-top: 10px;">👆 Click/tap cards to move | Build piles by alternating colors</p>
+    </div>
+    <div id="footer-container"></div>
+
+    <script>
+        const suits = ['♠', '♥', '♦', '♣'];
+        const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        const suitColors = {'♠': 'black', '♥': 'red', '♦': 'red', '♣': 'black'};
+        
+        let deck = [];
+        let tableau = [[], [], [], [], [], [], []];
+        let foundation = [[], [], [], []];
+        let stock = [];
+        let waste = [];
+        let moves = 0;
+        let score = 0;
+        let selectedCard = null;
+
+        function createDeck() {
+            deck = [];
+            for (let suit of suits) {
+                for (let rank of ranks) {
+                    deck.push({suit, rank, faceUp: false});
+                }
+            }
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            return deck;
+        }
+
+        function newGame() {
+            deck = createDeck();
+            tableau = [[], [], [], [], [], [], []];
+            foundation = [[], [], [], []];
+            stock = [];
+            waste = [];
+            moves = 0;
+            score = 0;
+            selectedCard = null;
+            document.getElementById('message').textContent = '';
+            document.getElementById('moves').textContent = moves;
+            document.getElementById('score').textContent = score;
+
+            let deckIdx = 0;
+            for (let i = 0; i < 7; i++) {
+                for (let j = i; j < 7; j++) {
+                    tableau[j].push(deck[deckIdx++]);
+                }
+                tableau[i][tableau[i].length - 1].faceUp = true;
+            }
+            stock = deck.slice(deckIdx);
+            render();
+        }
+
+        function getRankValue(rank) {
+            const rankMap = {'A': 1, 'J': 11, 'Q': 12, 'K': 13};
+            return rankMap[rank] || parseInt(rank);
+        }
+
+        function canMove(fromPile, toPile, cardIdx) {
+            if (toPile.length === 0) return true;
+            const fromCard = fromPile[cardIdx];
+            const toCard = toPile[toPile.length - 1];
+            return getRankValue(fromCard.rank) === getRankValue(toCard.rank) - 1 && 
+                   suitColors[fromCard.suit] !== suitColors[toCard.suit];
+        }
+
+        function moveCard(from, fromIdx, to) {
+            const cards = from.splice(fromIdx);
+            to.push(...cards);
+            moves++;
+            score += 5;
+            document.getElementById('moves').textContent = moves;
+            document.getElementById('score').textContent = score;
+        }
+
+        function cardClick(source, idx) {
+            if (selectedCard) {
+                if (source === selectedCard.source && idx === selectedCard.idx) {
+                    selectedCard = null;
+                } else {
+                    if (canMove(selectedCard.source, source, selectedCard.idx)) {
+                        moveCard(selectedCard.source, selectedCard.idx, source);
+                        selectedCard = null;
+                    }
+                }
+            } else {
+                selectedCard = {source, idx};
+            }
+            render();
+        }
+
+        function render() {
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+            for (let i = 0; i < 7; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'slot';
+                if (tableau[i].length === 0) {
+                    slot.innerHTML = '📦';
+                } else {
+                    const card = tableau[i][tableau[i].length - 1];
+                    slot.classList.add('card');
+                    slot.textContent = card.rank + card.suit;
+                    slot.style.color = suitColors[card.suit];
+                    slot.onclick = () => cardClick(tableau[i], tableau[i].length - 1);
+                }
+                boardEl.appendChild(slot);
+            }
+
+            const foundEl = document.getElementById('foundation');
+            foundEl.innerHTML = '';
+            for (let i = 0; i < 4; i++) {
+                const pile = document.createElement('div');
+                pile.className = 'pile';
+                if (foundation[i].length === 0) {
+                    pile.innerHTML = suits[i];
+                } else {
+                    const card = foundation[i][foundation[i].length - 1];
+                    pile.textContent = card.rank + card.suit;
+                    pile.style.color = suitColors[card.suit];
+                }
+                foundEl.appendChild(pile);
+            }
+        }
+
+        function undo() {
+            document.getElementById('message').textContent = 'Undo not available in this version';
+        }
+
+        newGame();
+
+        fetch('/partials/navbar.html').then(r => r.text()).then(html => {
+            document.getElementById('navbar-container').innerHTML = html;
+        });
+        fetch('/partials/footer.html').then(r => r.text()).then(html => {
+            document.getElementById('footer-container').innerHTML = html;
+        });
+    </script>
+</body>
+</html>

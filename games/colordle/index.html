@@ -2,13 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DDCcarr1 | Colordle</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         body {
@@ -19,6 +22,7 @@
             flex-direction: column;
             padding: 0;
             margin: 0;
+            overflow-x: hidden;
         }
 
         #navbar-container {
@@ -34,16 +38,20 @@
             max-width: 500px;
             width: 100%;
             color: white;
-        
-            flex: 1;}
+            margin: 0 auto;
+            padding: 10px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
 
         header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         h1 {
-            font-size: 2.5em;
+            font-size: 2em;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
@@ -56,18 +64,18 @@
         .game-container {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
-            padding: 25px;
+            padding: 15px;
             backdrop-filter: blur(10px);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .target-section {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .target-label {
-            font-size: 0.85em;
+            font-size: 0.75em;
             opacity: 0.8;
             margin-bottom: 8px;
             text-transform: uppercase;
@@ -75,8 +83,8 @@
         }
 
         .target-color {
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
             border-radius: 12px;
             margin: 0 auto;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
@@ -85,42 +93,34 @@
 
         .status-message {
             text-align: center;
-            font-size: 1.1em;
+            font-size: 1em;
             font-weight: bold;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             min-height: 30px;
-        }
-
-        .status-message.win {
-            color: #4ade80;
-        }
-
-        .status-message.close {
-            color: #fbbf24;
         }
 
         .guesses-grid {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin-bottom: 25px;
-            max-height: 320px;
+            gap: 6px;
+            margin-bottom: 15px;
+            max-height: 280px;
             overflow-y: auto;
         }
 
         .guess-row {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: center;
-            padding: 12px;
+            padding: 10px;
             background: rgba(255, 255, 255, 0.08);
             border-radius: 10px;
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .guess-color-box {
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             border-radius: 10px;
             border: 2px solid rgba(255, 255, 255, 0.3);
             flex-shrink: 0;
@@ -132,11 +132,11 @@
         }
 
         .guess-hex {
-            font-size: 1em;
+            font-size: 0.85em;
             font-weight: bold;
             font-family: 'Courier New', monospace;
-            margin-bottom: 5px;
-            letter-spacing: 3px;
+            margin-bottom: 3px;
+            letter-spacing: 2px;
         }
 
         .hex-char {
@@ -185,31 +185,33 @@
         }
 
         .input-section {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .input-label {
-            font-size: 0.85em;
+            font-size: 0.75em;
             opacity: 0.8;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: block;
         }
 
         .input-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .hex-input {
             flex: 1;
-            padding: 12px;
-            font-size: 1em;
+            padding: 10px;
+            font-size: 0.9em;
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.1);
             color: white;
             text-align: center;
             text-transform: uppercase;
+            touch-action: manipulation;
+        }
             font-weight: bold;
             backdrop-filter: blur(10px);
             transition: border-color 0.3s ease;
@@ -226,8 +228,8 @@
         }
 
         .guess-btn {
-            padding: 12px 25px;
-            font-size: 1em;
+            padding: 10px 20px;
+            font-size: 0.9em;
             border: 2px solid white;
             background: white;
             color: #667eea;
@@ -235,6 +237,11 @@
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s ease;
+            touch-action: manipulation;
+        }
+
+        .guess-btn:active:not(:disabled) {
+            transform: scale(0.95);
         }
 
         .guess-btn:hover:not(:disabled) {
@@ -249,13 +256,14 @@
 
         .buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .new-game-btn {
-            padding: 10px 20px;
-            font-size: 0.95em;
+            padding: 8px 16px;
+            font-size: 0.85em;
             border: 2px solid white;
             background: transparent;
             color: white;
@@ -263,6 +271,11 @@
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s ease;
+            touch-action: manipulation;
+        }
+
+        .new-game-btn:active {
+            transform: scale(0.95);
         }
 
         .new-game-btn:hover {
@@ -274,7 +287,7 @@
         .back-link {
             display: block;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 15px;
             color: white;
             text-decoration: none;
             opacity: 0.8;
@@ -286,10 +299,51 @@
         }
 
         .info-text {
-            font-size: 0.9em;
+            font-size: 0.8em;
             opacity: 0.7;
             text-align: center;
-            margin-top: 15px;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.6em;
+            }
+
+            .target-color {
+                width: 100px;
+                height: 100px;
+            }
+
+            .hex-input {
+                font-size: 0.85em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.3em;
+                margin-bottom: 8px;
+            }
+
+            .target-color {
+                width: 80px;
+                height: 80px;
+            }
+
+            .guess-row {
+                padding: 8px;
+                gap: 8px;
+            }
+
+            .guess-color-box {
+                width: 50px;
+                height: 50px;
+            }
+
+            .hex-input {
+                font-size: 0.75em;
+            }
         }
 
         .empty-row {
