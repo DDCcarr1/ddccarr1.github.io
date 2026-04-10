@@ -1,0 +1,70 @@
+<nav class="navbar">
+    <div class="navbar-container">
+        <a href="/" class="navbar-logo">DDCcarr1</a>
+        <div class="navbar-menu">
+            <a href="/" class="navbar-item">Home</a>
+            <a href="/games/" class="navbar-item">Games</a>
+            <a href="/directory.html" class="navbar-item">Directory</a>
+        </div>
+    </div>
+</nav>
+
+<style>
+    .navbar {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .navbar-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .navbar-logo {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: white;
+        text-decoration: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .navbar-logo:hover {
+        opacity: 0.8;
+    }
+
+    .navbar-menu {
+        display: flex;
+        gap: 30px;
+    }
+
+    .navbar-item {
+        color: white;
+        text-decoration: none;
+        opacity: 0.9;
+        transition: opacity 0.3s ease;
+        font-weight: 500;
+    }
+
+    .navbar-item:hover {
+        opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+        .navbar-menu {
+            gap: 15px;
+            font-size: 0.9em;
+        }
+
+        .navbar-logo {
+            font-size: 1.2em;
+        }
+    }
+</style>

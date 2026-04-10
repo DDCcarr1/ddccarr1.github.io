@@ -15,14 +15,28 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1a2c2a 0%, #2d4a48 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 0;
             color: white;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        #navbar-container {
+            flex-shrink: 0;
+        }
+
+        #footer-container {
+            flex-shrink: 0;
+            margin-top: auto;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
+            flex: 1;
         }
 
         header {
@@ -366,6 +380,7 @@
     </style>
 </head>
 <body>
+    <div id="navbar-container"></div>
     <div class="container">
         <header>
             <h1>♠️ Texas Hold'em Poker</h1>
@@ -822,6 +837,15 @@
 
         setMessage('Click "New Hand" to start playing.', '');
         render();
+    </script>
+<div id="footer-container"></div>
+    <script>
+        fetch('/partials/navbar.html').then(r => r.text()).then(html => {
+            document.getElementById('navbar-container').innerHTML = html;
+        });
+        fetch('/partials/footer.html').then(r => r.text()).then(html => {
+            document.getElementById('footer-container').innerHTML = html;
+        });
     </script>
 </body>
 </html>

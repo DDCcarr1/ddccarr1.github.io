@@ -16,16 +16,26 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            flex-direction: column;
+            padding: 0;
+            margin: 0;
+        }
+
+        #navbar-container {
+            flex-shrink: 0;
+        }
+
+        #footer-container {
+            flex-shrink: 0;
+            margin-top: auto;
         }
 
         .container {
             max-width: 500px;
             width: 100%;
             color: white;
-        }
+        
+            flex: 1;}
 
         header {
             text-align: center;
@@ -335,6 +345,7 @@
     </style>
 </head>
 <body>
+    <div id="navbar-container"></div>
     <div class="container">
         <header>
             <h1>🎨 Colordle</h1>
@@ -532,6 +543,15 @@
         });
 
         newGame();
+    </script>
+<div id="footer-container"></div>
+    <script>
+        fetch('/partials/navbar.html').then(r => r.text()).then(html => {
+            document.getElementById('navbar-container').innerHTML = html;
+        });
+        fetch('/partials/footer.html').then(r => r.text()).then(html => {
+            document.getElementById('footer-container').innerHTML = html;
+        });
     </script>
 </body>
 </html>
