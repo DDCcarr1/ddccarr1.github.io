@@ -280,10 +280,29 @@
             }
 
             for (let ghost of ghosts) {
-                let dirs = [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}];
-                let dir = dirs[Math.floor(Math.random() * dirs.length)];
-                ghost.x += dir.x;
-                ghost.y += dir.y;
+                // Simple AI: chase Pacman with some randomness
+                let dx = pacman.x - ghost.x;
+                let dy = pacman.y - ghost.y;
+                
+                // 80% of the time, move toward Pacman; 20% random
+                if (Math.random() < 0.8) {
+                    let dirs = [];
+                    if (dx > 0) dirs.push({x: 1, y: 0});
+                    if (dx < 0) dirs.push({x: -1, y: 0});
+                    if (dy > 0) dirs.push({x: 0, y: 1});
+                    if (dy < 0) dirs.push({x: 0, y: -1});
+                    if (dirs.length > 0) {
+                        let dir = dirs[Math.floor(Math.random() * dirs.length)];
+                        ghost.x += dir.x;
+                        ghost.y += dir.y;
+                    }
+                } else {
+                    let dirs = [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}];
+                    let dir = dirs[Math.floor(Math.random() * dirs.length)];
+                    ghost.x += dir.x;
+                    ghost.y += dir.y;
+                }
+                
                 if (ghost.x < 0) ghost.x = tileCount - 1;
                 if (ghost.x >= tileCount) ghost.x = 0;
                 if (ghost.y < 0) ghost.y = tileCount - 1;
@@ -366,10 +385,13 @@
         }, {passive: false});
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp') pacman.dir = {x: 0, y: -1};
-            if (e.key === 'ArrowDown') pacman.dir = {x: 0, y: 1};
-            if (e.key === 'ArrowLeft') pacman.dir = {x: -1, y: 0};
-            if (e.key === 'ArrowRight') pacman.dir = {x: 1, y: 0};
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                if (e.key === 'ArrowUp') pacman.dir = {x: 0, y: -1};
+                if (e.key === 'ArrowDown') pacman.dir = {x: 0, y: 1};
+                if (e.key === 'ArrowLeft') pacman.dir = {x: -1, y: 0};
+                if (e.key === 'ArrowRight') pacman.dir = {x: 1, y: 0};
+            }
         });
 
         newGame();

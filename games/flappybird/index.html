@@ -185,28 +185,30 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        let bird = {x: 50, y: canvas.height / 2, size: 15, velocity: 0, gravity: 0.6, lift: -12};
+        let bird = {x: 50, y: canvas.height / 2, size: 15, velocity: 0, gravity: 0.5, lift: -10};
         let pipes = [];
         let score = 0;
         let best = localStorage.getItem('flappyBirdBest') || 0;
         let gameOver = false;
+        let gameStarted = false;
         let pipeWidth = 60;
-        let pipeGap = 120;
-        let pipeDistance = 200;
+        let pipeGap = 140;
+        let pipeDistance = 250;
 
         document.getElementById('best').textContent = best;
 
         function newGame() {
-            bird = {x: 50, y: canvas.height / 2, size: 15, velocity: 0, gravity: 0.6, lift: -12};
+            bird = {x: 50, y: canvas.height / 2, size: 15, velocity: 0, gravity: 0.5, lift: -10};
             pipes = [];
             score = 0;
             gameOver = false;
+            gameStarted = false;
             document.getElementById('message').textContent = '';
             document.getElementById('score').textContent = score;
             for (let i = 0; i < 3; i++) {
                 createPipe(canvas.width + i * pipeDistance);
             }
-            gameLoop();
+            draw();
         }
 
         function createPipe(x) {
@@ -220,7 +222,7 @@
         }
 
         function update() {
-            if (gameOver) return;
+            if (!gameStarted || gameOver) return;
 
             bird.velocity += bird.gravity;
             bird.y += bird.velocity;
@@ -288,23 +290,41 @@
         function gameLoop() {
             update();
             draw();
-            if (!gameOver) requestAnimationFrame(gameLoop);
+            if (!gameOver && gameStarted) requestAnimationFrame(gameLoop);
         }
 
         canvas.addEventListener('click', () => {
-            if (gameOver) newGame();
-            else bird.velocity = bird.lift;
+            if (!gameStarted && !gameOver) {
+                gameStarted = true;
+                gameLoop();
+            } else if (gameOver) {
+                newGame();
+            } else {
+                bird.velocity = bird.lift;
+            }
         });
 
         canvas.addEventListener('touchstart', () => {
-            if (gameOver) newGame();
-            else bird.velocity = bird.lift;
+            if (!gameStarted && !gameOver) {
+                gameStarted = true;
+                gameLoop();
+            } else if (gameOver) {
+                newGame();
+            } else {
+                bird.velocity = bird.lift;
+            }
         }, {passive: true});
 
         document.addEventListener('keydown', (e) => {
             if (e.key === ' ') {
-                if (gameOver) newGame();
-                else bird.velocity = bird.lift;
+                if (!gameStarted && !gameOver) {
+                    gameStarted = true;
+                    gameLoop();
+                } else if (gameOver) {
+                    newGame();
+                } else {
+                    bird.velocity = bird.lift;
+                }
             }
         });
 

@@ -301,10 +301,22 @@
         }
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' && direction.y === 0) nextDirection = {x: 0, y: -1};
-            if (e.key === 'ArrowDown' && direction.y === 0) nextDirection = {x: 0, y: 1};
-            if (e.key === 'ArrowLeft' && direction.x === 0) nextDirection = {x: -1, y: 0};
-            if (e.key === 'ArrowRight' && direction.x === 0) nextDirection = {x: 1, y: 0};
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (direction.y === 0) nextDirection = {x: 0, y: -1};
+            }
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (direction.y === 0) nextDirection = {x: 0, y: 1};
+            }
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (direction.x === 0) nextDirection = {x: -1, y: 0};
+            }
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                if (direction.x === 0) nextDirection = {x: 1, y: 0};
+            }
         });
 
         let touchStartX = 0, touchStartY = 0;

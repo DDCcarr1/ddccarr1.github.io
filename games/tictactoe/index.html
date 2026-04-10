@@ -108,6 +108,61 @@
             gap: 15px;
             justify-content: center;
             margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .difficulty-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .difficulty-btn:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .mode-selector {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .mode-btn {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 0.95em;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #667eea;
         }
 
         button {
@@ -157,6 +212,18 @@
     <div class="container">
         <h1>⭕ Tic Tac Toe</h1>
         
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="setGameMode('pvp')">Player vs Player</button>
+            <button class="mode-btn" onclick="setGameMode('pva')">Player vs AI</button>
+        </div>
+
+        <div id="difficultyContainer" style="display: none;" class="difficulty-buttons">
+            <button class="difficulty-btn active" onclick="setDifficulty('easy')">Easy</button>
+            <button class="difficulty-btn" onclick="setDifficulty('medium')">Medium</button>
+            <button class="difficulty-btn" onclick="setDifficulty('hard')">Hard</button>
+            <button class="difficulty-btn" onclick="setDifficulty('impossible')">Impossible</button>
+        </div>
+        
         <div class="status playing" id="status">Player X's Turn</div>
         
         <div class="game-board" id="board">
@@ -182,6 +249,10 @@
         let board = ['', '', '', '', '', '', '', '', ''];
         let currentPlayer = 'X';
         let gameActive = true;
+        let gameMode = 'pvp'; // 'pvp' or 'pva'
+        let difficulty = 'medium';
+        let aiPlayer = 'O';
+        let humanPlayer = 'X';
 
         const winningConditions = [
             [0, 1, 2],
@@ -194,11 +265,137 @@
             [2, 4, 6]
         ];
 
+        function setGameMode(mode) {
+            gameMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('difficultyContainer').style.display = mode === 'pva' ? 'flex' : 'none';
+            resetGame();
+        }
+
+        function setDifficulty(level) {
+            difficulty = level;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            resetGame();
+        }
+
         function makeMove(index) {
-            if (board[index] === '' && gameActive) {
+            if (board[index] === '' && gameActive && (gameMode === 'pvp' || currentPlayer === humanPlayer)) {
                 board[index] = currentPlayer;
                 updateBoard();
                 checkWinner();
+                if (gameActive && gameMode === 'pva' && currentPlayer === aiPlayer) {
+                    setTimeout(makeAIMove, 500);
+                }
+            }
+        }
+
+        function makeAIMove() {
+            if (!gameActive) return;
+            let move;
+            if (difficulty === 'easy') move = getEasyMove();
+            else if (difficulty === 'medium') move = getMediumMove();
+            else if (difficulty === 'hard') move = getHardMove();
+            else move = getImpossibleMove();
+            
+            if (move !== -1) {
+                board[move] = aiPlayer;
+                updateBoard();
+                checkWinner();
+            }
+        }
+
+        function getEasyMove() {
+            const empty = board.map((val, idx) => val === '' ? idx : -1).filter(idx => idx !== -1);
+            return empty[Math.floor(Math.random() * empty.length)];
+        }
+
+        function getMediumMove() {
+            // 50% random, 50% minimax
+            if (Math.random() < 0.5) return getEasyMove();
+            const best = getBestMove(true);
+            return best !== undefined ? best : getEasyMove();
+        }
+
+        function getHardMove() {
+            // Try to win, block, then use minimax
+            const move = findWinningMove(aiPlayer) || findWinningMove(humanPlayer) || getBestMove(true);
+            return move !== undefined ? move : getEasyMove();
+        }
+
+        function getImpossibleMove() {
+            // Perfect play with minimax
+            const move = getBestMove(true);
+            return move !== undefined ? move : getEasyMove();
+        }
+
+        function findWinningMove(player) {
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === '') {
+                    board[i] = player;
+                    for (let condition of winningConditions) {
+                        const [a, b, c] = condition;
+                        if (board[a] === player && board[b] === player && board[c] === player) {
+                            board[i] = '';
+                            return i;
+                        }
+                    }
+                    board[i] = '';
+                }
+            }
+            return null;
+        }
+
+        function getBestMove(isMaximizing) {
+            let bestScore = isMaximizing ? -Infinity : Infinity;
+            let bestMove;
+            
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === '') {
+                    board[i] = isMaximizing ? aiPlayer : humanPlayer;
+                    let score = minimax(0, !isMaximizing);
+                    board[i] = '';
+                    
+                    if ((isMaximizing && score > bestScore) || (!isMaximizing && score < bestScore)) {
+                        bestScore = score;
+                        bestMove = i;
+                    }
+                }
+            }
+            return bestMove;
+        }
+
+        function minimax(depth, isMaximizing) {
+            // Check terminal states
+            for (let condition of winningConditions) {
+                const [a, b, c] = condition;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return board[a] === aiPlayer ? 10 - depth : depth - 10;
+                }
+            }
+            if (board.every(cell => cell !== '')) return 0;
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === '') {
+                        board[i] = aiPlayer;
+                        bestScore = Math.max(bestScore, minimax(depth + 1, false));
+                        board[i] = '';
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === '') {
+                        board[i] = humanPlayer;
+                        bestScore = Math.min(bestScore, minimax(depth + 1, true));
+                        board[i] = '';
+                    }
+                }
+                return bestScore;
             }
         }
 
@@ -237,10 +434,10 @@
 
         function resetGame() {
             board = ['', '', '', '', '', '', '', '', ''];
-            currentPlayer = 'X';
+            currentPlayer = humanPlayer;
             gameActive = true;
             updateBoard();
-            updateStatus(`Player X's Turn`);
+            updateStatus(gameMode === 'pva' ? `Your Turn (${humanPlayer})` : `Player X's Turn`);
         }
 
         document.querySelectorAll('.cell').forEach(cell => {

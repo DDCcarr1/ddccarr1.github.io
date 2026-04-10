@@ -85,8 +85,7 @@
             padding: 12px;
             width: 90vw;
             max-width: 320px;
-            height: 90vw;
-            max-height: 320px;
+            aspect-ratio: 1;
             margin: 0 auto 20px;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -100,11 +99,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5em;
+            font-size: clamp(0.8em, 4vw, 1.5em);
             font-weight: bold;
             color: white;
             transition: all 0.1s ease;
             position: relative;
+            aspect-ratio: 1;
         }
 
         .tile.new {
@@ -355,6 +355,34 @@
                 move(dir[e.key]);
             }
         });
+
+        let touchStartX = 0, touchStartY = 0;
+        const board_el = document.getElementById('board');
+        board_el.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, {passive: true});
+
+        board_el.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, {passive: false});
+
+        board_el.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (Math.abs(diffX) > 50) {
+                    move(diffX > 0 ? 'right' : 'left');
+                }
+            } else {
+                if (Math.abs(diffY) > 50) {
+                    move(diffY > 0 ? 'down' : 'up');
+                }
+            }
+        }, {passive: true});
 
         document.getElementById('best').textContent = best;
         initBoard();

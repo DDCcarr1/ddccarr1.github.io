@@ -345,8 +345,14 @@
         }, {passive: false});
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') mouseX = Math.max(0, mouseX - 10);
-            if (e.key === 'ArrowRight') mouseX = Math.min(canvas.width, mouseX + 10);
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                mouseX = Math.max(0, mouseX - 30);
+            }
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                mouseX = Math.min(canvas.width, mouseX + 30);
+            }
         });
 
         newGame();

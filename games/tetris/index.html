@@ -357,14 +357,56 @@
         }
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' && canMove(currentPiece, -1, 0)) currentPiece.x--;
-            if (e.key === 'ArrowRight' && canMove(currentPiece, 1, 0)) currentPiece.x++;
-            if (e.key === 'ArrowDown') currentPiece.y++;
+            if (gameOver || paused) return;
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (canMove(currentPiece, -1, 0)) currentPiece.x--;
+            }
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                if (canMove(currentPiece, 1, 0)) currentPiece.x++;
+            }
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (canMove(currentPiece, 0, 1)) currentPiece.y++;
+            }
             if (e.key === 'ArrowUp') {
+                e.preventDefault();
                 const rotated = {shape: rotatePiece(currentPiece), color: currentPiece.color, x: currentPiece.x, y: currentPiece.y};
                 if (canMove(rotated, 0, 0)) currentPiece.shape = rotated.shape;
             }
         });
+
+        let touchStartX = 0, touchStartY = 0;
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, {passive: true});
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (gameOver || paused) return;
+            e.preventDefault();
+            const touchEndX = e.touches[0].clientX;
+            const touchEndY = e.touches[0].clientY;
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 30 && canMove(currentPiece, -1, 0)) {
+                    currentPiece.x--;
+                    touchStartX = touchEndX;
+                }
+                if (diffX < -30 && canMove(currentPiece, 1, 0)) {
+                    currentPiece.x++;
+                    touchStartX = touchEndX;
+                }
+            } else {
+                if (diffY > 30) {
+                    if (canMove(currentPiece, 0, 1)) currentPiece.y++;
+                    touchStartY = touchEndY;
+                }
+            }
+        }, {passive: false});
 
         newGame();
 

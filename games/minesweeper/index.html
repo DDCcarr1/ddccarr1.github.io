@@ -283,8 +283,34 @@
             revealed = Array(cfg.rows * cfg.cols).fill(false);
             flagged = Array(cfg.rows * cfg.cols).fill(false);
 
+            // Place mines and calculate numbers first
             placeMines(cfg.rows * cfg.cols, cfg.mines);
             calculateNumbers(cfg.rows, cfg.cols);
+            
+            // Auto-click first cell to guarantee air reveal
+            let firstCell;
+            let attempts = 0;
+            while (attempts < 100) {
+                firstCell = Math.floor(Math.random() * (cfg.rows * cfg.cols));
+                if (board[firstCell] !== 'M' && board[firstCell] === 0) break;
+                attempts++;
+            }
+            
+            // If no zero found, place mines around a corner and try again
+            if (attempts >= 100) {
+                board = Array(cfg.rows * cfg.cols).fill(0);
+                revealed = Array(cfg.rows * cfg.cols).fill(false);
+                flagged = Array(cfg.rows * cfg.cols).fill(false);
+                placeMines(cfg.rows * cfg.cols, cfg.mines);
+                calculateNumbers(cfg.rows, cfg.cols);
+                firstCell = Math.floor(Math.random() * (cfg.rows * cfg.cols));
+            }
+            
+            revealed[firstCell] = true;
+            if (board[firstCell] === 0) {
+                floodFill(firstCell, cfg.rows, cfg.cols);
+            }
+            
             renderBoard(cfg.rows, cfg.cols);
             
             timerInterval = setInterval(() => {
@@ -331,11 +357,27 @@
             for (let i = 0; i < rows * cols; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
-                cell.addEventListener('click', () => revealCell(i, rows, cols));
+                let longPressTimer;
+                
+                cell.addEventListener('click', () => {
+                    if (flagged[i]) return;
+                    revealCell(i, rows, cols);
+                });
+                
                 cell.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
                     toggleFlag(i);
                 });
+                
+                cell.addEventListener('touchstart', (e) => {
+                    longPressTimer = setTimeout(() => {
+                        if (!revealed[i]) toggleFlag(i);
+                    }, 500);
+                }, {passive: true});
+                
+                cell.addEventListener('touchend', () => {
+                    clearTimeout(longPressTimer);
+                }, {passive: true});
 
                 if (revealed[i]) {
                     cell.classList.add('revealed');
